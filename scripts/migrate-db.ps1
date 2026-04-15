@@ -144,17 +144,17 @@ if (-not (Get-Command psql -ErrorAction SilentlyContinue)) {
 $envValues = Read-EnvFile -Path $EnvPath
 $databaseUrlParts = Get-DatabaseUrlParts -DatabaseUrl (Get-Setting -Values $envValues -Name 'DATABASE_URL')
 
-$host = Get-Setting -Values $envValues -Name 'POSTGRES_HOST' -Default $databaseUrlParts.Host
+$dbHost = Get-Setting -Values $envValues -Name 'POSTGRES_HOST' -Default $databaseUrlParts.Host
 $port = [int](Get-Setting -Values $envValues -Name 'POSTGRES_PORT' -Default $databaseUrlParts.Port)
 $user = Get-Setting -Values $envValues -Name 'POSTGRES_USER' -Default $databaseUrlParts.User
 $password = Get-Setting -Values $envValues -Name 'POSTGRES_PASSWORD' -Default $databaseUrlParts.Password
 $database = Get-Setting -Values $envValues -Name 'POSTGRES_DB' -Default $databaseUrlParts.Database
 
-if ([string]::IsNullOrWhiteSpace($host) -or [string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($database)) {
+if ([string]::IsNullOrWhiteSpace($dbHost) -or [string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($database)) {
     throw 'Missing required database settings. Set POSTGRES_HOST, POSTGRES_USER and POSTGRES_DB or provide DATABASE_URL.'
 }
 
-Write-Log "Applying migrations to ${host}:$port/$database"
+Write-Log "Applying migrations to ${dbHost}:$port/$database"
 
 $trackingSql = @"
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -163,10 +163,10 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 );
 "@
 
-Invoke-Psql -HostName $host -Port $port -UserName $user -Password $password -Database $database -Sql $trackingSql | Out-Null
+Invoke-Psql -HostName $dbHost -Port $port -UserName $user -Password $password -Database $database -Sql $trackingSql | Out-Null
 
 $applied = @{}
-$appliedRows = Invoke-Psql -HostName $host -Port $port -UserName $user -Password $password -Database $database -Sql "SELECT filename FROM schema_migrations ORDER BY filename;"
+$appliedRows = Invoke-Psql -HostName $dbHost -Port $port -UserName $user -Password $password -Database $database -Sql "SELECT filename FROM schema_migrations ORDER BY filename;"
 if ($appliedRows) {
     foreach ($row in ($appliedRows -split "`r?`n")) {
         $name = $row.Trim()
@@ -185,8 +185,8 @@ foreach ($migration in $migrationFiles) {
     }
 
     Write-Log "Applying $($migration.Name)"
-    Invoke-Psql -HostName $host -Port $port -UserName $user -Password $password -Database $database -FilePath $migration.FullName | Out-Null
-    Invoke-Psql -HostName $host -Port $port -UserName $user -Password $password -Database $database -Sql "INSERT INTO schema_migrations (filename) VALUES ('$($migration.Name)');" | Out-Null
+    Invoke-Psql -HostName $dbHost -Port $port -UserName $user -Password $password -Database $database -FilePath $migration.FullName | Out-Null
+    Invoke-Psql -HostName $dbHost -Port $port -UserName $user -Password $password -Database $database -Sql "INSERT INTO schema_migrations (filename) VALUES ('$($migration.Name)');" | Out-Null
     Write-Log "Applied $($migration.Name)" 'OK'
 }
 

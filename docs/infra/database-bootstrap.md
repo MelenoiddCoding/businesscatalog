@@ -20,26 +20,26 @@
 
 ## Comando recomendado
 ```powershell
-pwsh -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1
 ```
 
 Opcionalmente se puede indicar otro archivo de entorno:
 
 ```powershell
-pwsh -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1 -EnvPath .\.env
+powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1 -EnvPath .\.env
 ```
 
 El script es idempotente para la base y las extensiones.
 
 ## Comando de migraciones
 ```powershell
-pwsh -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
 ```
 
 ## Comando de migraciones remotas (Render)
 ```powershell
 $env:PGSSLMODE='require'
-pwsh -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
 ```
 
 Este flujo aplica cuando `DATABASE_URL` apunta a Render Postgres.

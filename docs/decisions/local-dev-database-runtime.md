@@ -11,8 +11,8 @@ Aceptada (2026-04-15)
 ## Decision
 - El flujo canonico local para base de datos usa una instancia local de PostgreSQL con PostGIS ya disponible en la maquina del desarrollador.
 - El bootstrap y migraciones se ejecutan con:
-  - `pwsh -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1`
-  - `pwsh -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1`
 - `PGSSLMODE` se mantiene en `disable` en local y solo cambia a `require` para migraciones remotas.
 
 ## Consecuencias

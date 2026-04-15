@@ -51,6 +51,7 @@
 ### Backend en Render
 - `APP_ENV`
 - `BACKEND_CORS_ORIGINS`
+- `BACKEND_CORS_ORIGIN_REGEX` para dominios preview dinamicos (opcional)
 - `DATABASE_URL`
 - `JWT_SECRET`
 - `JWT_ALGORITHM`
@@ -59,6 +60,12 @@
 - `S3_BUCKET`
 - `S3_ACCESS_KEY`
 - `S3_SECRET_KEY`
+
+## Guia rapida CORS para Vercel + Render
+- Si el frontend usa un dominio fijo, agregar ese dominio exacto en `BACKEND_CORS_ORIGINS`.
+- Si el frontend usa dominios preview dinamicos de Vercel, configurar `BACKEND_CORS_ORIGIN_REGEX`.
+- Ejemplo para previews como `https://businesscatalog-<hash>-melenoiddcodings-projects.vercel.app`:
+  `^https://businesscatalog-.*-melenoiddcodings-projects\.vercel\.app$`
 
 ## Limitaciones del plan gratuito
 - Los web services gratuitos en Render se detienen tras 15 minutos sin trafico entrante.

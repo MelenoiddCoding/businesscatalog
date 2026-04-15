@@ -26,6 +26,14 @@ def parse_csv_env(value: str | None, fallback: tuple[str, ...]) -> tuple[str, ..
     return fallback
 
 
+def parse_optional_env(value: str | None) -> str | None:
+    if value is None:
+        return None
+
+    parsed = value.strip()
+    return parsed or None
+
+
 @dataclass(frozen=True)
 class Settings:
     app_environment: str = os.getenv("APP_ENV", "local")
@@ -34,6 +42,9 @@ class Settings:
     cors_allowed_origins: tuple[str, ...] = parse_csv_env(
         os.getenv("BACKEND_CORS_ORIGINS"),
         CORS_DEV_DEFAULTS if APP_ENV == "local" else (),
+    )
+    cors_allowed_origin_regex: str | None = parse_optional_env(
+        os.getenv("BACKEND_CORS_ORIGIN_REGEX")
     )
     jwt_secret: str = os.getenv("JWT_SECRET", "")
     jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")

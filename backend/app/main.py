@@ -17,6 +17,7 @@ app = FastAPI(title=settings.app_name, version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(settings.cors_allowed_origins),
+    allow_origin_regex=settings.cors_allowed_origin_regex,
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
@@ -172,12 +173,12 @@ def list_businesses(
     return catalog_service.list_businesses(filters)
 
 
-@app.get("/businesses/{identifier}")
+@app.get("/businesses/{slug}")
 def get_business_detail(
-    identifier: str,
+    slug: str,
     catalog_service: CatalogService = Depends(get_catalog_service),
 ) -> dict[str, object]:
-    business = catalog_service.get_business_detail(identifier)
+    business = catalog_service.get_business_detail(slug)
     if business is None:
         _raise_http_error(
             status_code=404,
@@ -187,15 +188,15 @@ def get_business_detail(
     return business
 
 
-@app.get("/businesses/{identifier}/reviews")
+@app.get("/businesses/{slug}/reviews")
 def get_business_reviews(
-    identifier: str,
+    slug: str,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=50),
     catalog_service: CatalogService = Depends(get_catalog_service),
 ) -> dict[str, object]:
     filters = ReviewQueryFilters(page=page, page_size=page_size)
-    reviews = catalog_service.list_business_reviews(identifier=identifier, filters=filters)
+    reviews = catalog_service.list_business_reviews(slug=slug, filters=filters)
     if reviews is None:
         _raise_http_error(
             status_code=404,

@@ -147,8 +147,7 @@ Reglas:
 - Solo negocios `published` aparecen en listado publico.
 - Para publicar un negocio se requiere `name`, `slug`, `description`, `address`, `zone`, al menos una categoria, una ubicacion y una imagen.
 - Convencion de identificadores para API:
-  - `slug` como identificador canonico en lectura publica.
-  - `id` (uuid) tambien se acepta temporalmente via `{identifier}` por compatibilidad de clientes.
+  - `slug` como identificador canonico en lectura publica (`GET /businesses/{slug}` y `GET /businesses/{slug}/reviews`).
   - `id` (uuid) para mutaciones autenticadas (`favorites`, `reviews`).
 
 ### `business_locations`

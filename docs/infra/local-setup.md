@@ -25,6 +25,7 @@
 ## Variables de entorno
 - `APP_ENV`
 - `BACKEND_CORS_ORIGINS`
+- `BACKEND_CORS_ORIGIN_REGEX` (opcional para dominios dinamicos en preview)
 - `NEXT_PUBLIC_API_URL`
 - `NEXT_PUBLIC_APP_NAME`
 - `NEXT_PUBLIC_APP_ENV`
@@ -47,8 +48,8 @@
 - Copiar `frontend/.env.example` a `frontend/.env.local` para que Next.js lea las variables del frontend.
 - Instalar dependencias del frontend una sola vez con el gestor elegido por el repositorio.
 - Confirmar que PostgreSQL/PostGIS local este arriba y accesible con las variables `POSTGRES_*` de `.env`.
-- Preparar la base local con `pwsh -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1`.
-- Aplicar migraciones con `pwsh -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1`.
+- Preparar la base local con `powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-db.ps1`.
+- Aplicar migraciones con `powershell -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1`.
 - Levantar el backend desde `backend` con `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`.
 - Arrancar el frontend en modo desarrollo.
 - Verificar que la home cargue, que login funcione y que el layout responsive se vea bien en mobile y desktop.

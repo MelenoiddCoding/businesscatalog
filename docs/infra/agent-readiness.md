@@ -18,7 +18,7 @@ $env:PGSSLMODE='require'
 ```
 2. Ejecutar migraciones:
 ```powershell
-pwsh -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
 ```
 3. Verificar evidencia minima:
   - `schema_migrations` contiene `0003_seed_tepic_businesses.sql`.

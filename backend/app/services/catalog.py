@@ -52,6 +52,11 @@ class ReviewQueryFilters:
     page_size: int
 
 
+def _fetch_first_row(cursor: Any) -> Any:
+    rows = cursor.fetchall()
+    return rows[0] if rows else None
+
+
 def normalize_opening_hours(raw: Any) -> dict[str, list[dict[str, str]]]:
     if not isinstance(raw, dict):
         return {day: [] for day in CANONICAL_DAYS}
@@ -193,7 +198,7 @@ class CatalogService:
         """
         with self.connection.cursor() as cursor:
             cursor.execute(count_sql, where_params)
-            count_row = cursor.fetchone()
+            count_row = _fetch_first_row(cursor)
             total_items = int(count_row["total_items"]) if count_row else 0
 
         offset = (filters.page - 1) * filters.page_size
@@ -323,7 +328,7 @@ class CatalogService:
             },
         }
 
-    def get_business_detail(self, identifier: str) -> dict[str, Any] | None:
+    def get_business_detail(self, slug: str) -> dict[str, Any] | None:
         base_sql = """
             SELECT
                 b.id::text AS id,
@@ -345,13 +350,13 @@ class CatalogService:
             FROM businesses b
             JOIN business_locations bl ON bl.business_id = b.id
             WHERE b.status = 'published'
-              AND (b.slug = %s OR b.id::text = %s)
+              AND b.slug = %s
             LIMIT 1
         """
 
         with self.connection.cursor() as cursor:
-            cursor.execute(base_sql, [identifier, identifier])
-            business_row = cursor.fetchone()
+            cursor.execute(base_sql, [slug])
+            business_row = _fetch_first_row(cursor)
 
             if business_row is None:
                 return None
@@ -431,7 +436,7 @@ class CatalogService:
 
     def list_business_reviews(
         self,
-        identifier: str,
+        slug: str,
         filters: ReviewQueryFilters,
     ) -> dict[str, Any] | None:
         with self.connection.cursor() as cursor:
@@ -440,12 +445,12 @@ class CatalogService:
                 SELECT id::text AS id
                 FROM businesses
                 WHERE status = 'published'
-                  AND (slug = %s OR id::text = %s)
+                  AND slug = %s
                 LIMIT 1
                 """,
-                [identifier, identifier],
+                [slug],
             )
-            business = cursor.fetchone()
+            business = _fetch_first_row(cursor)
             if business is None:
                 return None
 
@@ -461,7 +466,7 @@ class CatalogService:
                 """,
                 [business_id],
             )
-            summary_row = cursor.fetchone()
+            summary_row = _fetch_first_row(cursor)
 
             cursor.execute(
                 """
@@ -472,7 +477,7 @@ class CatalogService:
                 """,
                 [business_id],
             )
-            count_row = cursor.fetchone()
+            count_row = _fetch_first_row(cursor)
             total_items = int(count_row["total_items"]) if count_row else 0
             total_pages = ceil(total_items / filters.page_size) if total_items > 0 else 0
             offset = (filters.page - 1) * filters.page_size

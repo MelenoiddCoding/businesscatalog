@@ -2,43 +2,33 @@
 
 ## Scope
 - Fecha de revision: 2026-04-15.
-- Alcance: bloque B1 de catalogo publico (`/health`, `/categories`, `/businesses`, `/businesses/{slug}`, busqueda/filtros publicos).
+- Alcance: bloque B1 de catalogo publico (`/health`, `/categories`, `/businesses`, `/businesses/{slug}`, `/businesses/{slug}/reviews`).
 - Restricciones: sin auth/favoritos/perfil/resenas de escritura, sin cambios de Render/Vercel.
 
-## Findings
-1. `P0` Estado de implementacion en docs desactualizado:
-   - `docs/backend/api-spec.md` todavia declara que solo `GET /health` esta implementado.
-   - El codigo backend ya expone `GET /categories`, `GET /businesses`, `GET /businesses/{identifier}` y `GET /businesses/{identifier}/reviews`.
-2. `P1` Divergencia de identificador en detalle/reviews:
-   - Docs canonicos de B1 definen rutas publicas con `slug`.
-   - Backend acepta `identifier` (slug o id UUID) para detalle y reviews.
-3. `P1` Frontend B1 de Home/Listado ya existe y consume endpoints publicos reales:
-   - Hay flujo funcional de Home/Listado con busqueda, filtros categoria/zona/cercania y estados loading/empty/error.
-   - No se implementan auth/favoritos/perfil/resenas de escritura, alineado a alcance B1.
-4. `P1` Gaps de pruebas:
-   - No hay pruebas automatizadas backend/frontend para validar B1.
-   - `docs/testing/test-plan.md` y `docs/testing/test-cases.md` siguen incluyendo alcance fuera de B1/MVP vigente (mapa dedicado, envio de resena, edicion de perfil).
-5. `P2` Divergencia documental menor de migraciones:
-   - Existe `backend/migrations/0004_public_catalog_indexes.sql`.
-   - Algunos docs de estado base siguen mencionando solo `0001`, `0002`, `0003`.
+## Findings (estado actual)
+1. `P0` Contrato de identificador cerrado:
+   - Se adopto `slug` como identificador canonico para detalle y reseñas publicas.
+   - Backend y docs ya estan alineados a `GET /businesses/{slug}` y `GET /businesses/{slug}/reviews`.
+2. `P0` Estado de implementacion B1 actualizado en docs:
+   - `docs/backend/api-spec.md` refleja endpoints publicos implementados.
+3. `P1` Cobertura de pruebas:
+   - Existen pruebas de API para contrato B1.
+   - Existen pruebas de integracion contra PostgreSQL/PostGIS real.
+4. `P1` Seed local reproducible:
+   - Se agrego migracion incremental con datos minimos para validar listado, filtros, detalle, reseñas y 404 de no publicado.
+5. `P2` Plan de pruebas actualizado a hardening B1:
+   - `docs/testing/test-plan.md` y `docs/testing/b1-public-catalog-smoke-e2e.md` ya delimitan alcance B1.
 
 ## Consistency Matrix (B1)
-- `GET /health`: consistente en docs y codigo.
-- `GET /categories`: implementado en backend; cliente frontend lo consume.
-- `GET /businesses` (q/category/zone/near/radius/sort/paginacion): implementado en backend; Home/Listado lo consume.
-- `GET /businesses/{slug}`: implementado en backend con parametro `identifier` (slug/id), no estrictamente igual al contrato documental actual.
-- `GET /businesses/{slug}/reviews`: implementado en backend con parametro `identifier` (slug/id), no estrictamente igual al contrato documental actual.
+- `GET /health`: consistente en docs, codigo y pruebas.
+- `GET /categories`: consistente en docs, codigo y pruebas.
+- `GET /businesses` (q/category/zone/near/radius/sort/paginacion): consistente en docs, codigo y pruebas.
+- `GET /businesses/{slug}`: consistente en docs, codigo y pruebas.
+- `GET /businesses/{slug}/reviews`: consistente en docs, codigo y pruebas.
 
-## Blockers (actionable)
-1. Alinear contrato de identificador para detalle/reviews:
-   - Opcion A: mantener `slug` canonico y restringir backend a slug.
-   - Opcion B: oficializar `identifier` en docs y criterios.
-2. Actualizar `docs/backend/api-spec.md` (estado de implementacion y matriz) para evitar decisiones sobre informacion obsoleta.
-3. Agregar pruebas minimas de B1:
-   - Backend: filtros por `category`/`zone`, cercania, paginacion y `404` en no publicado.
-   - Frontend: smoke del flujo Home/Listado y estados loading/empty/error.
-4. Limpiar docs de testing fuera de alcance B1/MVP vigente:
-   - Quitar mapa dedicado, envio de resena y edicion de perfil del bloque actual.
+## Blockers (actuales)
+1. Ejecutar smoke e2e del flujo publico de forma recurrente en CI (por ahora esta documentado, no automatizado).
+2. Mantener disciplina para no introducir endpoints protegidos de B2 en branches de hardening B1.
 
 ## Recommended Next Step
-- Ejecutar un mini cierre de consistencia docs-codigo en este orden: (1) contrato de identificador, (2) estado real de B1 en `api-spec`, (3) pruebas minimas backend/frontend, (4) limpieza de plan/casos de prueba.
+- Integrar el smoke B1 como gate automatizado de PR y avanzar a B2 solo cuando ese gate quede estable.

@@ -61,8 +61,8 @@ class FakeCatalogService:
             },
         }
 
-    def get_business_detail(self, identifier: str) -> dict[str, Any] | None:
-        if identifier == "missing":
+    def get_business_detail(self, slug: str) -> dict[str, Any] | None:
+        if slug == "missing":
             return None
         return {
             "id": "00000000-0000-0000-0000-000000000311",
@@ -88,11 +88,11 @@ class FakeCatalogService:
 
     def list_business_reviews(
         self,
-        identifier: str,
+        slug: str,
         filters: ReviewQueryFilters,
     ) -> dict[str, Any] | None:
         self.last_review_filters = filters
-        if identifier == "missing":
+        if slug == "missing":
             return None
         return {
             "items": [],
@@ -189,4 +189,3 @@ class CatalogPublicApiTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

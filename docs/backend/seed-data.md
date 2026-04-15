@@ -12,6 +12,16 @@
   - 5 ubicaciones geograficas
   - 5 asignaciones negocio-categoria
 
+## Seed minimo reproducible B1 (0005)
+- Migracion: `backend/migrations/0005_seed_b1_public_catalog.sql`
+- Objetivo: endurecer pruebas del catalogo publico en local sin salir de B1.
+- Registros agregados:
+  - 2 usuarios cliente (solo para autoria de reseñas publicas de lectura).
+  - 1 negocio `draft` para verificar `404` en endpoints publicos de detalle/reseñas.
+  - imagenes `cover` minimas para negocios publicados.
+  - productos `active` minimos para probar busqueda por texto en catalogo.
+  - reseñas `published` minimas para probar listado y summary de reseñas.
+
 ## Negocios incluidos
 1. El Antojito (`el-antojito-tepic`)
 2. Cafe la Parroquia (`cafe-la-parroquia-tepic`)

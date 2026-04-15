@@ -142,14 +142,14 @@ function Invoke-Psql {
 $envValues = Read-EnvFile -Path $EnvPath
 $databaseUrlParts = Get-DatabaseUrlParts -DatabaseUrl (Get-Setting -Values $envValues -Name 'DATABASE_URL')
 
-$host = Get-Setting -Values $envValues -Name 'POSTGRES_HOST' -Default $databaseUrlParts.Host
+$dbHost = Get-Setting -Values $envValues -Name 'POSTGRES_HOST' -Default $databaseUrlParts.Host
 $portValue = Get-Setting -Values $envValues -Name 'POSTGRES_PORT' -Default $databaseUrlParts.Port
 $port = [int]$portValue
 $user = Get-Setting -Values $envValues -Name 'POSTGRES_USER' -Default $databaseUrlParts.User
 $password = Get-Setting -Values $envValues -Name 'POSTGRES_PASSWORD' -Default $databaseUrlParts.Password
 $database = Get-Setting -Values $envValues -Name 'POSTGRES_DB' -Default $databaseUrlParts.Database
 
-if ([string]::IsNullOrWhiteSpace($host) -or [string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($database)) {
+if ([string]::IsNullOrWhiteSpace($dbHost) -or [string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($database)) {
     throw 'Missing required database settings. Set POSTGRES_HOST, POSTGRES_USER and POSTGRES_DB or provide DATABASE_URL.'
 }
 
@@ -157,11 +157,11 @@ if (-not (Get-Command psql -ErrorAction SilentlyContinue)) {
     throw 'psql was not found in PATH. Install PostgreSQL client tools before running this script.'
 }
 
-Write-Log "Target database: $database on ${host}:$port"
+Write-Log "Target database: $database on ${dbHost}:$port"
 
 $safeDatabaseLiteral = Escape-SqlLiteral -Value $database
 $checkSql = "SELECT 1 FROM pg_database WHERE datname = $safeDatabaseLiteral;"
-$existing = Invoke-Psql -HostName $host -Port $port -UserName $user -Password $password -Database 'postgres' -Sql $checkSql
+$existing = Invoke-Psql -HostName $dbHost -Port $port -UserName $user -Password $password -Database 'postgres' -Sql $checkSql
 
 if ($existing -match '1') {
     Write-Log 'Database already exists.' 'OK'
@@ -169,7 +169,7 @@ if ($existing -match '1') {
 else {
     Write-Log 'Database does not exist. Creating it now.' 'WARN'
     $createSql = "CREATE DATABASE $(Escape-SqlIdentifier -Value $database);"
-    Invoke-Psql -HostName $host -Port $port -UserName $user -Password $password -Database 'postgres' -Sql $createSql | Out-Null
+    Invoke-Psql -HostName $dbHost -Port $port -UserName $user -Password $password -Database 'postgres' -Sql $createSql | Out-Null
     Write-Log 'Database created.' 'OK'
 }
 
@@ -178,7 +178,7 @@ $extensionSql = @(
     'CREATE EXTENSION IF NOT EXISTS citext;'
 ) -join ' '
 
-Invoke-Psql -HostName $host -Port $port -UserName $user -Password $password -Database $database -Sql $extensionSql | Out-Null
+Invoke-Psql -HostName $dbHost -Port $port -UserName $user -Password $password -Database $database -Sql $extensionSql | Out-Null
 Write-Log 'Extensions ensured: postgis, citext' 'OK'
 
 Write-Log 'Bootstrap completed successfully.' 'OK'
