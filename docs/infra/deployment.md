@@ -9,8 +9,8 @@
 ### Manifiestos
 - `frontend/vercel.json` fija el comportamiento esperado del frontend en Vercel.
 - `render.yaml` declara el backend FastAPI y la base PostgreSQL/PostGIS para Render.
-- Para previews de PR en Render, usar `previews.generation: automatic`.
-- Si el servicio participa en previews de PR, no fijar `branch` en el Blueprint; Render usa la rama del PR.
+- Los workspaces Hobby de Render no soportan Preview Environments; para este repo el Blueprint debe desplegar el servicio principal sin bloque `previews`.
+- Si mas adelante se sube de plan, se puede reintroducir Preview Environments con `previews.generation: automatic`.
 
 ### Frontend
 - Next.js en Vercel.
