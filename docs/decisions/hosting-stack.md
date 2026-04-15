@@ -23,6 +23,7 @@ Canónico para el MVP y entornos de preview.
 
 ## Variables por entorno
 - `NEXT_PUBLIC_API_URL` apunta al backend de Render.
+- `BACKEND_CORS_ORIGINS` define whitelist de origenes permitidos para navegador.
 - `DATABASE_URL` apunta al Postgres de Render.
 - `JWT_SECRET` vive en el backend.
 - `NEXT_PUBLIC_GOOGLE_MAPS_KEY` o la variable del proveedor de mapas vive en Vercel.

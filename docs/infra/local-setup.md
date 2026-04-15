@@ -23,6 +23,7 @@
 
 ## Variables de entorno
 - `APP_ENV`
+- `BACKEND_CORS_ORIGINS`
 - `NEXT_PUBLIC_API_URL`
 - `NEXT_PUBLIC_APP_NAME`
 - `NEXT_PUBLIC_APP_ENV`
@@ -51,6 +52,7 @@
 - Base de datos en Render Postgres.
 - El frontend se gobierna con `frontend/vercel.json` y el backend/DB con `render.yaml`.
 - Usar las mismas variables de entorno que en local, pero apuntando a servicios remotos.
+- Ejecutar migraciones remotas con `PGSSLMODE=require` antes de iniciar trabajo de features.
 
 ## Notas operativas
 - No introducir una segunda implementacion frontend para mobile.

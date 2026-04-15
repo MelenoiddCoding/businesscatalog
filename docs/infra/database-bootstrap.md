@@ -36,6 +36,19 @@ El script es idempotente para la base y las extensiones.
 pwsh -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
 ```
 
+## Comando de migraciones remotas (Render)
+```powershell
+$env:PGSSLMODE='require'
+pwsh -ExecutionPolicy Bypass -File .\scripts\migrate-db.ps1
+```
+
+Este flujo aplica cuando `DATABASE_URL` apunta a Render Postgres.
+
+## Evidencia posterior obligatoria
+- `schema_migrations` incluye las nuevas migraciones esperadas.
+- `GET /health` reporta `database_configured=true`.
+- El seed inicial de Tepic queda disponible para consultas del catalogo.
+
 ## Variables relevantes
 - `DATABASE_URL`
 - `POSTGRES_DB` si se usa una separacion explicita entre servidor y base destino

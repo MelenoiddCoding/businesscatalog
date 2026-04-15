@@ -20,8 +20,8 @@
 ### Backend
 - FastAPI en Render como web service gratuito.
 - El backend expone una URL publica para ser consumida por el frontend.
-- Build command: `pip install -r requirements.txt`
-- Start command en Render: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Build command: `pip install -r backend/requirements.txt`
+- Start command en Render: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
 ### Base de datos
 - PostgreSQL en Render Postgres.
@@ -50,6 +50,7 @@
 
 ### Backend en Render
 - `APP_ENV`
+- `BACKEND_CORS_ORIGINS`
 - `DATABASE_URL`
 - `JWT_SECRET`
 - `JWT_ALGORITHM`
@@ -66,7 +67,7 @@
 
 ## Comandos y rutas
 - El frontend se despliega con Vercel desde la raiz del proyecto frontend.
-- El backend se levanta con `uvicorn app.main:app --host 0.0.0.0 --port $PORT` en Render.
+- El backend se levanta con `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT` en Render.
 
 ## Reglas para agentes
 - No asumir que Vercel va a alojar FastAPI.

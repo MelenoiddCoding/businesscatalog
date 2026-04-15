@@ -38,6 +38,7 @@ npm run dev
 
 - `frontend/vercel.json` fija el frontend para Vercel.
 - `render.yaml` fija el backend FastAPI y la base PostgreSQL/PostGIS para Render.
+- Para migraciones remotas (Render): `PGSSLMODE=require` + `scripts/migrate-db.ps1`.
 
 ## Documentacion canonica
 
@@ -48,3 +49,5 @@ npm run dev
 - [Local setup](docs/infra/local-setup.md)
 - [Database bootstrap](docs/infra/database-bootstrap.md)
 - [Deployment](docs/infra/deployment.md)
+- [Agent readiness](docs/infra/agent-readiness.md)
+- [Seed data](docs/backend/seed-data.md)

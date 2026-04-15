@@ -23,6 +23,8 @@
 - Pruebas de formularios con `React Hook Form` y validacion `Zod`.
 - Pruebas de cache, refetch e invalidacion con `React Query`.
 - Validacion de transiciones con motion reducido cuando `prefers-reduced-motion` este activo.
+- Pruebas CORS desde frontend Vercel permitido y desde origen no permitido.
+- Pruebas de seed para confirmar presencia de 5 negocios iniciales en listados y filtros.
 
 ## Casos minimos
 - Un usuario puede registrarse y entrar.
@@ -34,3 +36,5 @@
 - Un usuario puede ver y enviar reseñas.
 - Un usuario puede contactar por WhatsApp si el negocio tiene numero valido.
 - La misma pantalla sigue siendo clara en mobile y desktop.
+- Las migraciones remotas se aplican con `PGSSLMODE=require` sin errores.
+- El backend rechaza origenes no permitidos por CORS.
