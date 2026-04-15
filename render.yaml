@@ -1,5 +1,5 @@
 previews:
-  generation: auto_preview
+  generation: automatic
 
 services:
   - type: web
@@ -7,7 +7,6 @@ services:
     runtime: python
     plan: free
     region: oregon
-    branch: main
     autoDeploy: true
     healthCheckPath: /health
     buildCommand: pip install -r backend/requirements.txt
