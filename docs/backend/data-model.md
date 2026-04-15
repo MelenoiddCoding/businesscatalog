@@ -18,12 +18,19 @@ Si existe discrepancia con `data-model.md` en la raiz del proyecto, este archivo
 - Mantener trazabilidad suficiente para sesiones, moderacion de reseñas y futura evolucion hacia panel de comerciantes.
 
 ## Supuestos de stack
-- Base de datos: PostgreSQL 16+
+- Base de datos: PostgreSQL 15+ (alineado con Render Postgres actual)
 - Extension geografica: PostGIS
 - Identificadores: UUID
 - Fechas: `timestamptz`
 - Busqueda textual: `tsvector` en español
 - Storage de imagenes: S3-compatible; la base solo almacena URLs y metadatos
+
+## Alineacion con estado actual
+- Migraciones existentes: `0001_initial_schema.sql`, `0002_seed_core.sql`, `0003_seed_tepic_businesses.sql`, `0004_public_catalog_indexes.sql`.
+- Las tablas, enums, indices parciales y triggers definidos aqui deben mantenerse compatibles con esas migraciones.
+- Si hay divergencia, se corrige con nueva migracion incremental; no se edita una migracion ya aplicada.
+- Estado real del seed `0003` a 2026-04-15: categorias, negocios, ubicaciones y asignaciones de categoria ya cargadas; galeria, productos y resenas aun no vienen precargadas.
+- Implicacion MVP: el frontend debe soportar `images`, `products` y `reviews` vacios sin romper flujo de listado o detalle.
 
 ## Diagrama conceptual
 ```mermaid
@@ -133,14 +140,19 @@ Entidad principal del catalogo publico.
 Indices:
 - unique `businesses_slug_key` sobre `slug`
 - `businesses_zone_idx` sobre `zone`
-- indice sugerido por texto sobre `name`
+- `businesses_status_zone_idx` sobre `(status, zone)` para listado publicado por zona.
+- GIN `businesses_tsv_idx` sobre `to_tsvector('spanish', coalesce(name,'') || ' ' || coalesce(description,''))`.
 
 Reglas:
 - Solo negocios `published` aparecen en listado publico.
 - Para publicar un negocio se requiere `name`, `slug`, `description`, `address`, `zone`, al menos una categoria, una ubicacion y una imagen.
+- Convencion de identificadores para API:
+  - `slug` como identificador canonico en lectura publica.
+  - `id` (uuid) tambien se acepta temporalmente via `{identifier}` por compatibilidad de clientes.
+  - `id` (uuid) para mutaciones autenticadas (`favorites`, `reviews`).
 
 ### `business_locations`
-Ubicacion geografica canónica del negocio para busqueda y mapa. En MVP se maneja una ubicacion por negocio, pero el diseño permite extenderse.
+Ubicacion geografica canonica del negocio para busqueda por cercania. En MVP se maneja una ubicacion por negocio, pero el diseno permite extenderse.
 
 | Campo | Tipo | Null | Regla |
 | --- | --- | --- | --- |
@@ -172,6 +184,10 @@ Estructura sugerida de `opening_hours`:
 }
 ```
 
+Compatibilidad MVP:
+- Se permite temporalmente `opening_hours` con shape heredado de seed OSM basado en un string de horario.
+- El backend debe normalizar a formato legible para frontend, sin romper el shape sugerido canonico.
+
 ### `business_categories`
 Catalogo curado de categorias visibles para filtros y clasificacion.
 
@@ -198,6 +214,9 @@ Relacion many-to-many entre negocio y categoria.
 
 Clave primaria:
 - `PRIMARY KEY (business_id, category_id)`
+
+Indices:
+- `business_category_assignments_category_business_idx` sobre `(category_id, business_id)` para filtro publico por categoria.
 
 Reglas:
 - Un negocio debe tener al menos una categoria para publicarse.
@@ -259,6 +278,7 @@ Galeria del negocio. Incluye portada, galeria, menus o referencias visuales temp
 
 Indices:
 - `business_images_business_id_idx` sobre `business_id`
+- `business_images_business_kind_position_idx` sobre `(business_id, kind, position)` para cover+galeria ordenada en detalle.
 
 Reglas:
 - Todo negocio publicado debe tener al menos una imagen.
@@ -282,6 +302,7 @@ Reglas:
 - Requiere sesion autenticada.
 
 ### `reviews`
+Resenas de negocio en el modelo de datos. En el MVP vigente solo se consume lectura publica (`GET /businesses/{slug}/reviews`); la publicacion desde cliente queda Post-MVP.
 Reseñas de usuarios sobre negocios.
 
 | Campo | Tipo | Null | Regla |
@@ -299,6 +320,7 @@ Reseñas de usuarios sobre negocios.
 
 Indices:
 - `reviews_business_created_idx` sobre `(business_id, created_at desc)`
+- `reviews_published_business_created_idx` parcial sobre `(business_id, created_at desc) WHERE status = 'published'`
 - `reviews_user_idx` sobre `user_id`
 
 Reglas:
@@ -346,10 +368,7 @@ ST_DWithin(
 - Las consultas publicas no requieren sesion salvo personalizacion como "guardado por mi".
 
 ## Indices adicionales sugeridos
-- GIN sobre `businesses.search_vector` si se materializa un vector combinado de `name`, `description`, `zone`.
-- indice sobre `businesses(status, zone)`
-- indice sobre `products(status, business_id)`
-- indice sobre `reviews(status, business_id)`
+- GIN sobre `businesses.search_vector` si en Post-MVP se materializa un vector combinado de `name`, `description`, `zone`.
 
 ## Triggers y automatizaciones recomendadas
 
@@ -384,14 +403,9 @@ Aplicar a:
 14. indices avanzados y triggers
 
 ## Seeds minimos para staging y desarrollo
-- 1 administrador
-- 10 a 20 categorias curadas
-- 20 negocios publicados
-- 1 ubicacion valida por negocio
-- 3 a 8 productos destacados en al menos la mitad de los negocios
-- 1 imagen de portada por negocio
-- 3 a 5 reseñas distribuidas en negocios seleccionados
-- 3 zonas representativas de Tepic para pruebas: `Centro`, `Ciudad Industrial`, `Flamingos`
+- Minimo ejecutable actual (cubierto por `0003`): 3 categorias, 5 negocios `published`, 1 ubicacion por negocio y zonas `Centro`, `Insurgentes`, `Colosio`, `La Loma`.
+- Objetivo de seed para QA MVP (siguiente migracion incremental): imagenes de portada, productos destacados y resenas de ejemplo.
+- Regla de compatibilidad: mientras el seed de QA no exista, los clientes deben mostrar placeholders cuando falte galeria, catalogo o resenas.
 
 ## Relacion con API
 Este modelo debe reflejarse en:
@@ -400,15 +414,21 @@ Este modelo debe reflejarse en:
 - `GET /categories`
 - `POST /auth/register`
 - `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
 - `GET /me`
-- `PATCH /me`
+- `PATCH /me` (Post-MVP)
 - `GET /favorites`
 - `POST /favorites/{businessId}`
 - `DELETE /favorites/{businessId}`
-- `GET /businesses/{businessId}/reviews`
-- `POST /businesses/{businessId}/reviews`
+- `GET /businesses/{slug}/reviews`
+- `POST /businesses/{businessId}/reviews` (Post-MVP)
 
-## Decisiones abiertas
-- Si `zone` permanece como texto controlado o se mueve a tabla `zones`.
-- Si el login MVP sera solo email/password o tambien telefono + OTP simulado.
-- Si las reseñas se publican directamente o pasan por moderacion manual ligera.
+## Decisiones cerradas para MVP
+- `zone` se mantiene como texto controlado en `businesses.zone`; no se crea tabla `zones` en MVP.
+- El login MVP es solo `email + password` con JWT (`access` + `refresh`), sin OTP.
+- Si se habilita publicacion de resenas (Post-MVP), se crean en estado `pending` y solo `published` cuenta para rating visible.
+
+## Capacidades Post-MVP documentadas
+- Edicion de perfil (`PATCH /me`).
+- Publicacion de resenas desde cliente (`POST /businesses/{businessId}/reviews`).

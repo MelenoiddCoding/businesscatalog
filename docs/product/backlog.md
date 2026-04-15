@@ -2,9 +2,17 @@
 
 ## Convenciones
 - Prioridad `MUST`: bloquea salida del MVP.
-- Prioridad `SHOULD`: entra al MVP si no compromete fecha ni estabilidad.
-- Prioridad `COULD`: queda preparada, pero no bloquea lanzamiento.
+- Prioridad `SHOULD`: entra al MVP solo si no compromete fecha ni estabilidad.
+- Prioridad `COULD`: queda fuera del MVP y no bloquea lanzamiento.
 - Todos los items deben mapearse a API, datos, diseno y pruebas antes de desarrollo.
+- Ninguna historia puede entrar a implementacion si su contrato no existe en `docs/backend/api-spec.md`.
+- Ninguna historia puede cambiar modelo de datos fuera de `docs/backend/data-model.md` + migracion incremental.
+
+## Estado base de orquestacion (2026-04-15)
+- Backend implementado en codigo: `GET /health`.
+- Esquema de datos base y seed inicial: migraciones `0001`, `0002`, `0003`.
+- Frontend desplegado: scaffold conectado a `NEXT_PUBLIC_API_URL`.
+- Implicacion: el siguiente bloque de trabajo es cerrar contratos y ejecutar implementacion por capas, sin cambiar hosting ni stack.
 
 ## Sprint 0 - Fundaciones del producto
 
@@ -28,7 +36,33 @@
 - Historia: Como orquestador del proyecto quiero ownership claro por documento para evitar handoffs ambiguos.
 - Dependencia: `docs/orchestration/agent-operating-model.md`
 
+### P0-05 Contrato API MVP congelado
+- Prioridad: `MUST`
+- Historia: Como frontend y backend quiero un contrato REST unico para implementar sin suposiciones.
+- Entregable: `docs/backend/api-spec.md` con estado actual y endpoints objetivo del MVP.
+- Dependencia: `docs/backend/data-model.md`, `docs/product/acceptance-criteria.md`
+
+### P0-06 Alineacion de identificadores y filtros
+- Prioridad: `MUST`
+- Historia: Como equipo quiero reglas explicitas de `slug` vs `id`, zonas y geofiltros para evitar inconsistencias entre listado, detalle, favoritos y resenas.
+- Entregable: reglas reflejadas en `docs/backend/data-model.md`, `docs/backend/api-spec.md` y criterios de aceptacion.
+
 ## MVP - Historias priorizadas
+
+## Cobertura MVP (AGENTS.md)
+- `Registro de usuario`: A-01.
+- `Inicio de sesion`: A-02.
+- `Gestion basica de sesion`: A-03 y A-04.
+- `Listado de negocios`: B-01 y B-02.
+- `Vista de detalle de negocio`: C-01, C-02 y C-03.
+- `Busqueda por texto`: B-03.
+- `Filtro por categoria`: B-04.
+- `Filtro por zona`: B-05.
+- `Cerca de mi`: B-06.
+- `Favoritos`: D-01, D-02 y D-03.
+- `CTA a WhatsApp`: D-04.
+- `Perfil basico de usuario`: F-01.
+- `Resenas de negocios`: E-01 y E-03.
 
 ### Epic A - Autenticacion y sesion
 
@@ -81,17 +115,12 @@
 - Historia: Como usuario quiero ordenar o filtrar por cercania para descubrir negocios utiles alrededor de mi ubicacion actual.
 - Dependencias: permisos de geolocalizacion, PostGIS, fallback por zona.
 
-#### B-07 Vista de mapa
-- Prioridad: `SHOULD`
-- Historia: Como usuario quiero ver negocios sobre mapa para entender mejor su distribucion por zona.
-- Dependencias: coordenadas, diseno bottom sheet.
-
 ### Epic C - Ficha de negocio
 
 #### C-01 Detalle completo
 - Prioridad: `MUST`
 - Historia: Como usuario quiero abrir la ficha de un negocio para validar si me conviene visitarlo o escribirle.
-- Incluye: nombre, categoria, descripcion, direccion, horario, reseñas, galeria, catalogo y CTA.
+- Incluye: nombre, categoria, descripcion, direccion, horario, resenas, galeria, catalogo y CTA.
 
 #### C-02 Galeria de imagenes
 - Prioridad: `MUST`
@@ -123,19 +152,11 @@
 - Prioridad: `MUST`
 - Historia: Como usuario quiero escribir al negocio por WhatsApp con un mensaje prellenado para ahorrar tiempo.
 
-#### D-05 Compartir negocio
-- Prioridad: `COULD`
-- Historia: Como usuario quiero compartir un negocio por enlace para recomendarlo a otra persona.
+### Epic E - Resenas y confianza
 
-### Epic E - Reseñas y confianza
-
-#### E-01 Ver reseñas
+#### E-01 Ver resenas
 - Prioridad: `MUST`
-- Historia: Como usuario quiero leer reseñas para evaluar la confianza del negocio.
-
-#### E-02 Publicar reseña
-- Prioridad: `SHOULD`
-- Historia: Como usuario autenticado quiero dejar una calificacion y comentario para ayudar a otros usuarios.
+- Historia: Como usuario quiero leer resenas para evaluar la confianza del negocio.
 
 #### E-03 Promedio de calificacion
 - Prioridad: `MUST`
@@ -147,27 +168,23 @@
 - Prioridad: `MUST`
 - Historia: Como usuario quiero consultar mis datos basicos y accesos de cuenta desde una sola pantalla.
 
-#### F-02 Editar perfil
-- Prioridad: `SHOULD`
-- Historia: Como usuario quiero actualizar mi nombre, telefono y avatar para mantener mi cuenta vigente.
-
 ## Priorizacion de entrega recomendada
-1. Autenticacion basica.
+1. Autenticacion basica y gestion de sesion.
 2. Home, listado y busqueda.
 3. Filtros por categoria y zona.
 4. Ficha de negocio.
 5. WhatsApp CTA.
 6. Favoritos.
 7. Cerca de mi.
-8. Reseñas.
-9. Mapa.
-10. Edicion de perfil.
+8. Resenas (lectura y promedio).
+9. Perfil basico (consulta y cierre de sesion).
 
 ## Dependencias transversales
 - Datos: seeds con negocios, categorias, zonas, coordenadas e imagenes.
-- API: endpoints de auth, negocios, filtros, favoritos, reseñas y perfil.
+- API: endpoints de auth, negocios, filtros, favoritos, resenas y perfil.
 - Infra: Docker Compose, Postgres/PostGIS, storage local o S3-compatible.
 - QA: casos criticos desde registro hasta tap en WhatsApp.
+- Orquestacion: cada historia `MUST` debe tener trazabilidad explicita con acceptance criteria y endpoint.
 
 ## Fuera del MVP
 - Chat interno.
@@ -176,3 +193,7 @@
 - Recomendador.
 - Panel administrativo complejo.
 - Multiciudad.
+- Vista de mapa dedicada como seccion principal.
+- Compartir negocio por enlace.
+- Publicar resenas desde cliente.
+- Edicion de perfil (nombre, telefono, avatar).

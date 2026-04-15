@@ -7,6 +7,14 @@
 - La experiencia debe construirse como una sola web app responsive, mobile-first, con desktop como adaptacion del mismo producto.
 - La implementacion frontend debe seguir la decision canonica de `docs/decisions/frontend-stack.md`.
 
+## Supuestos de contrato (orquestacion)
+- `GET /businesses` y `GET /businesses/{slug}` son lectura publica.
+- Favoritos usan `businessId` (uuid) en rutas autenticadas.
+- `GET /businesses/{slug}/reviews` expone solo resenas `published`.
+- Horarios y mensajes de estado abierto/cerrado se interpretan en `America/Mexico_City`.
+- Si geolocalizacion es denegada o falla, la experiencia debe continuar por zona sin bloquear flujo.
+- Los escenarios `SHOULD` no bloquean salida MVP; los `MUST` si la bloquean.
+
 ## Registro
 
 ### Escenario: registro exitoso
@@ -45,6 +53,20 @@
 - Dado que ya inicie sesion anteriormente
 - Cuando regreso a la app con un token valido
 - Entonces debo continuar autenticado sin volver a loguearme
+
+## Gestion basica de sesion
+
+### Escenario: cierre de sesion exitoso
+- Dado que estoy autenticado
+- Cuando ejecuto cerrar sesion desde Perfil
+- Entonces la sesion local se elimina
+- Y las rutas protegidas vuelven a requerir autenticacion
+
+### Escenario: redireccion con contexto en ruta protegida
+- Dado que no estoy autenticado
+- Cuando intento abrir Favoritos o Perfil
+- Entonces el sistema me redirige a auth
+- Y conserva la ruta destino para regresar despues del login
 
 ## Home y exploracion
 
@@ -85,7 +107,7 @@
 ### Escenario: aplicar categoria
 - Dado que estoy viendo un listado de negocios
 - Cuando selecciono una categoria
-- Entonces el listado y el mapa, si esta visible, se actualizan segun esa categoria
+- Entonces el listado se actualiza segun esa categoria
 - Y el chip seleccionado queda visualmente activo
 
 ### Escenario: aplicar zona
@@ -114,26 +136,12 @@
 - Entonces el sistema informa que no pudo acceder a mi ubicacion
 - Y me ofrece continuar por zona sin bloquear la exploracion
 
-## Vista de mapa
-
-### Escenario: mapa con negocios
-- Dado que existen negocios con coordenadas validas
-- Cuando entro a la vista de mapa
-- Entonces veo marcadores por negocio
-- Y al tocar un marcador aparece una ficha resumida con CTA rapido
-
-### Escenario: negocio sin coordenadas
-- Dado que un negocio no tiene coordenadas
-- Cuando consulto la vista de mapa
-- Entonces ese negocio no debe romper la pantalla
-- Y debe seguir disponible en la vista de listado si cumple el resto de datos minimos
-
 ## Ficha de negocio
 
 ### Escenario: detalle completo
-- Dado que selecciono un negocio del listado o del mapa
+- Dado que selecciono un negocio desde resultados
 - Cuando abro su ficha
-- Entonces veo nombre, categoria, descripcion, direccion, horario, galeria, catalogo, reseñas y CTA principal
+- Entonces veo nombre, categoria, descripcion, direccion, horario, galeria, catalogo, resenas y CTA principal
 - Y el contenido mas importante aparece antes del primer scroll largo
 
 ### Escenario: horarios y estado operativo
@@ -155,6 +163,12 @@
 - Cuando toco el control de favorito en una tarjeta o ficha
 - Entonces el negocio queda guardado en mi cuenta
 - Y veo confirmacion visual inmediata
+
+### Escenario: quitar favorito autenticado
+- Dado que tengo un negocio en favoritos
+- Cuando toco de nuevo el control de favorito
+- Entonces el negocio se elimina de mi lista
+- Y la UI refleja el nuevo estado sin recargar la pagina
 
 ### Escenario: intento guardar sin sesion
 - Dado que no he iniciado sesion
@@ -187,23 +201,12 @@
 - Entonces el CTA de WhatsApp no debe mostrarse como accion disponible
 - O debe mostrarse deshabilitado con una explicacion clara
 
-## Reseñas
+## Resenas
 
-### Escenario: ver reseñas publicadas
-- Dado que un negocio tiene reseñas aprobadas
+### Escenario: ver resenas publicadas
+- Dado que un negocio tiene resenas aprobadas
 - Cuando entro a su ficha
-- Entonces veo la calificacion promedio, el numero de reseñas y comentarios visibles
-
-### Escenario: publicar reseña autenticado
-- Dado que estoy autenticado
-- Cuando envio una calificacion valida y un comentario dentro de las reglas
-- Entonces la reseña se registra
-- Y la UI confirma si se publico o quedo pendiente de moderacion
-
-### Escenario: publicar reseña sin sesion
-- Dado que no estoy autenticado
-- Cuando intento enviar una reseña
-- Entonces el sistema solicita inicio de sesion antes de continuar
+- Entonces veo la calificacion promedio, el numero de resenas y comentarios visibles
 
 ## Perfil de usuario
 
@@ -212,15 +215,9 @@
 - Cuando entro a Perfil
 - Entonces veo mis datos basicos y accesos a favoritos y cierre de sesion
 
-### Escenario: editar perfil
-- Dado que estoy autenticado
-- Cuando actualizo mi nombre, telefono o avatar con datos validos
-- Entonces el sistema guarda los cambios
-- Y veo confirmacion de actualizacion exitosa
-
 ## Reglas UX y accesibilidad obligatorias
 - El CTA principal de cada ficha debe ser WhatsApp si el negocio tiene numero valido.
 - Todo boton de WhatsApp debe incluir `aria-label` con nombre del negocio.
 - El contraste de texto principal debe cumplir minimo 4.5:1.
-- Si el usuario tiene `prefers-reduced-motion`, los rebotes o animaciones decorativas deben reducirse o deshabilitarse.
-- Ninguna pantalla del MVP debe depender exclusivamente del mapa para completar una tarea.
+- Si el usuario tiene `prefers-reduced-motion`, las animaciones decorativas deben reducirse o deshabilitarse.
+- Ninguna pantalla del MVP debe depender de una vista de mapa para completar una tarea.
