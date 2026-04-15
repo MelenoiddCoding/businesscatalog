@@ -35,6 +35,7 @@ class CatalogPublicIntegrationTests(unittest.TestCase):
             "0003_seed_tepic_businesses.sql",
             "0004_public_catalog_indexes.sql",
             "0005_seed_b1_public_catalog.sql",
+            "0006_seed_b1_real_images.sql",
         }
         with psycopg.connect(cls.database_url) as connection:
             with connection.cursor() as cursor:

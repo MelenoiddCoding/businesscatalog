@@ -22,6 +22,14 @@
   - productos `active` minimos para probar busqueda por texto en catalogo.
   - reseñas `published` minimas para probar listado y summary de reseñas.
 
+## Ajuste de imagenes reales B1 (0006)
+- Migracion: `backend/migrations/0006_seed_b1_real_images.sql`
+- Objetivo: reemplazar URLs placeholder (`images.example.com`) por imágenes públicas reales y estables.
+- Cobertura:
+  - `el-antojito-tepic` (cover)
+  - `cafe-la-parroquia-tepic` (cover)
+  - `la-sopa-de-piezzi-tepic` (cover)
+
 ## Negocios incluidos
 1. El Antojito (`el-antojito-tepic`)
 2. Cafe la Parroquia (`cafe-la-parroquia-tepic`)
