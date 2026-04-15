@@ -1,13 +1,17 @@
 from collections.abc import Generator
+import ipaddress
+from uuid import UUID
 
 import psycopg
-from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Path, Query, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field, field_validator
 from psycopg.rows import dict_row
 
 from app.core.settings import get_settings
+from app.services.auth import AuthContext, AuthService, ServiceError, validate_email
 from app.services.catalog import BusinessQueryFilters, CatalogService, ReviewQueryFilters
 
 
@@ -79,6 +83,18 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     )
 
 
+@app.exception_handler(ServiceError)
+async def service_error_exception_handler(
+    request: Request,
+    exc: ServiceError,
+) -> JSONResponse:
+    _ = request
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=_build_error(code=exc.code, message=exc.message, details=exc.details),
+    )
+
+
 def get_db_connection() -> Generator[psycopg.Connection[dict], None, None]:
     if not settings.database_url:
         _raise_http_error(
@@ -106,6 +122,109 @@ def get_catalog_service(
     connection: psycopg.Connection[dict] = Depends(get_db_connection),
 ) -> CatalogService:
     return CatalogService(connection)
+
+
+def get_auth_service(
+    connection: psycopg.Connection[dict] = Depends(get_db_connection),
+) -> AuthService:
+    return AuthService(connection=connection, settings=settings)
+
+
+def _extract_bearer_token(request: Request) -> str | None:
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return None
+    parts = auth_header.strip().split(" ", 1)
+    if len(parts) != 2:
+        return None
+    scheme, token = parts
+    if scheme.lower() != "bearer" or not token.strip():
+        return None
+    return token.strip()
+
+
+def _extract_ip_address(request: Request) -> str | None:
+    if request.client is None or request.client.host is None:
+        return None
+    candidate = request.client.host.strip()
+    if not candidate:
+        return None
+    try:
+        ipaddress.ip_address(candidate)
+    except ValueError:
+        return None
+    return candidate
+
+
+def get_optional_auth_context(
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> AuthContext | None:
+    token = _extract_bearer_token(request)
+    if token is None:
+        return None
+    return auth_service.resolve_access_token(token, raise_on_error=False)
+
+
+def get_current_auth_context(
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> AuthContext:
+    token = _extract_bearer_token(request)
+    if token is None:
+        raise ServiceError(
+            status_code=401,
+            code="AUTH_UNAUTHORIZED",
+            message="Authentication required.",
+        )
+    context = auth_service.resolve_access_token(token, raise_on_error=True)
+    if context is None:
+        raise ServiceError(
+            status_code=401,
+            code="AUTH_UNAUTHORIZED",
+            message="Authentication required.",
+        )
+    return context
+
+
+class AuthRegisterRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    email: str = Field(min_length=3, max_length=320)
+    password: str = Field(min_length=8, max_length=128)
+    phone: str | None = Field(default=None, max_length=20)
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("name is required")
+        return cleaned
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_field(cls, value: str) -> str:
+        cleaned = value.strip().lower()
+        if not validate_email(cleaned):
+            raise ValueError("email is invalid")
+        return cleaned
+
+
+class AuthLoginRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=320)
+    password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_field(cls, value: str) -> str:
+        cleaned = value.strip().lower()
+        if not validate_email(cleaned):
+            raise ValueError("email is invalid")
+        return cleaned
+
+
+class AuthRefreshRequest(BaseModel):
+    refresh_token: str = Field(min_length=8, max_length=512)
 
 
 def _validate_business_search(
@@ -156,6 +275,7 @@ def list_businesses(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=50),
     catalog_service: CatalogService = Depends(get_catalog_service),
+    auth_context: AuthContext | None = Depends(get_optional_auth_context),
 ) -> dict[str, object]:
     _validate_business_search(sort=sort, near_lat=near_lat, near_lng=near_lng)
 
@@ -170,15 +290,18 @@ def list_businesses(
         page=page,
         page_size=page_size,
     )
-    return catalog_service.list_businesses(filters)
+    viewer_user_id = auth_context.user_id if auth_context else None
+    return catalog_service.list_businesses(filters, viewer_user_id=viewer_user_id)
 
 
 @app.get("/businesses/{slug}")
 def get_business_detail(
     slug: str,
     catalog_service: CatalogService = Depends(get_catalog_service),
+    auth_context: AuthContext | None = Depends(get_optional_auth_context),
 ) -> dict[str, object]:
-    business = catalog_service.get_business_detail(slug)
+    viewer_user_id = auth_context.user_id if auth_context else None
+    business = catalog_service.get_business_detail(slug, viewer_user_id=viewer_user_id)
     if business is None:
         _raise_http_error(
             status_code=404,
@@ -204,3 +327,91 @@ def get_business_reviews(
             message="Business not found or not published.",
         )
     return reviews
+
+
+@app.post("/auth/register", status_code=201)
+def register(
+    payload: AuthRegisterRequest,
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict[str, object]:
+    return auth_service.register_user(
+        name=payload.name,
+        email=payload.email,
+        password=payload.password,
+        phone=payload.phone,
+        user_agent=request.headers.get("user-agent"),
+        ip_address=_extract_ip_address(request),
+    )
+
+
+@app.post("/auth/login")
+def login(
+    payload: AuthLoginRequest,
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict[str, object]:
+    return auth_service.login_user(
+        email=payload.email,
+        password=payload.password,
+        user_agent=request.headers.get("user-agent"),
+        ip_address=_extract_ip_address(request),
+    )
+
+
+@app.post("/auth/refresh")
+def refresh(
+    payload: AuthRefreshRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict[str, object]:
+    return auth_service.refresh_access_token(payload.refresh_token)
+
+
+@app.post("/auth/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(
+    auth_context: AuthContext = Depends(get_current_auth_context),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> Response:
+    auth_service.logout(user_id=auth_context.user_id, session_id=auth_context.session_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get("/me")
+def get_me(
+    auth_context: AuthContext = Depends(get_current_auth_context),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict[str, object]:
+    return auth_service.get_profile(user_id=auth_context.user_id)
+
+
+@app.get("/favorites")
+def list_favorites(
+    auth_context: AuthContext = Depends(get_current_auth_context),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict[str, object]:
+    return {"items": auth_service.list_favorites(user_id=auth_context.user_id)}
+
+
+@app.post("/favorites/{businessId}", status_code=201)
+def add_favorite(
+    businessId: UUID = Path(description="Business UUID"),
+    auth_context: AuthContext = Depends(get_current_auth_context),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict[str, object]:
+    return auth_service.add_favorite(
+        user_id=auth_context.user_id,
+        business_id=str(businessId),
+    )
+
+
+@app.delete("/favorites/{businessId}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_favorite(
+    businessId: UUID = Path(description="Business UUID"),
+    auth_context: AuthContext = Depends(get_current_auth_context),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> Response:
+    auth_service.delete_favorite(
+        user_id=auth_context.user_id,
+        business_id=str(businessId),
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -9,10 +9,10 @@
 - Ninguna historia puede cambiar modelo de datos fuera de `docs/backend/data-model.md` + migracion incremental.
 
 ## Estado base de orquestacion (2026-04-15)
-- Backend implementado en codigo: `GET /health`.
-- Esquema de datos base y seed inicial: migraciones `0001`, `0002`, `0003`.
-- Frontend desplegado: scaffold conectado a `NEXT_PUBLIC_API_URL`.
-- Implicacion: el siguiente bloque de trabajo es cerrar contratos y ejecutar implementacion por capas, sin cambiar hosting ni stack.
+- B1 (catalogo publico) ya tiene contratos y flujo frontend/backend funcional para listado, detalle y resenas publicas.
+- Esquema de datos base y seed incremental disponible: migraciones `0001` a `0006`.
+- Siguiente bloque activo: **B2 - Auth + Favoritos + Perfil basico**.
+- Implicacion: ejecutar B2 por capas sin cambiar hosting, stack ni alcance MVP.
 
 ## Sprint 0 - Fundaciones del producto
 
@@ -63,6 +63,30 @@
 - `CTA a WhatsApp`: D-04.
 - `Perfil basico de usuario`: F-01.
 - `Resenas de negocios`: E-01 y E-03.
+
+## Bloque activo B2 - Auth + Favoritos + Perfil basico
+
+### Alcance B2 (incluido)
+- A-01 Registro por email.
+- A-02 Inicio de sesion.
+- A-03 Persistencia de sesion (access + refresh) y redireccion a ruta protegida.
+- A-04 Cierre de sesion.
+- D-01 Guardar en favoritos.
+- D-02 Quitar de favoritos.
+- D-03 Ver lista de favoritos.
+- F-01 Ver perfil basico (`GET /me`, solo lectura).
+
+### Fuera de alcance B2 (explicitamente)
+- OAuth/social login.
+- Recuperacion de password por email/OTP.
+- Edicion de perfil (`PATCH /me`).
+- Escritura de resenas.
+- Panel de negocios.
+
+### Dependencias de B2
+- Contratos en `docs/backend/api-spec.md` para auth, favorites y me.
+- Persistencia de `sessions` y `favorites` en `docs/backend/data-model.md`.
+- UI B1 existente para reutilizar cards y detalle sin rehacer catalogo publico.
 
 ### Epic A - Autenticacion y sesion
 
@@ -169,15 +193,9 @@
 - Historia: Como usuario quiero consultar mis datos basicos y accesos de cuenta desde una sola pantalla.
 
 ## Priorizacion de entrega recomendada
-1. Autenticacion basica y gestion de sesion.
-2. Home, listado y busqueda.
-3. Filtros por categoria y zona.
-4. Ficha de negocio.
-5. WhatsApp CTA.
-6. Favoritos.
-7. Cerca de mi.
-8. Resenas (lectura y promedio).
-9. Perfil basico (consulta y cierre de sesion).
+1. B1 catalogo publico (cerrado).
+2. B2 autenticacion, favoritos y perfil basico (bloque activo).
+3. Endurecimiento QA transversal (regresion B1 + B2).
 
 ## Dependencias transversales
 - Datos: seeds con negocios, categorias, zonas, coordenadas e imagenes.

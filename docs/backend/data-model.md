@@ -31,6 +31,7 @@ Si existe discrepancia con `data-model.md` en la raiz del proyecto, este archivo
 - Si hay divergencia, se corrige con nueva migracion incremental; no se edita una migracion ya aplicada.
 - Estado real del seed `0003` a 2026-04-15: categorias, negocios, ubicaciones y asignaciones de categoria ya cargadas; galeria, productos y resenas aun no vienen precargadas.
 - Implicacion MVP: el frontend debe soportar `images`, `products` y `reviews` vacios sin romper flujo de listado o detalle.
+- Siguiente bloque funcional: B2 (auth + favoritos + perfil basico) sin cambios de arquitectura.
 
 ## Diagrama conceptual
 ```mermaid
@@ -114,6 +115,9 @@ Persistencia de sesion para refresh tokens y cierre de sesion por dispositivo.
 
 Reglas:
 - `ON DELETE CASCADE` al eliminar usuario.
+
+Indices recomendados para B2:
+- unique `sessions_refresh_token_hash_key` sobre `refresh_token_hash`.
 
 ### `businesses`
 Entidad principal del catalogo publico.
@@ -299,6 +303,7 @@ Clave primaria:
 Reglas:
 - No se permiten duplicados.
 - Requiere sesion autenticada.
+- El listado de favoritos del usuario debe ordenar por `created_at DESC` para UX predecible.
 
 ### `reviews`
 Resenas de negocio en el modelo de datos. En el MVP vigente solo se consume lectura publica (`GET /businesses/{slug}/reviews`); la publicacion desde cliente queda Post-MVP.

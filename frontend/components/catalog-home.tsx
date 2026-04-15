@@ -4,6 +4,8 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { LocateFixed, MapPin, Search, Star, Store, TriangleAlert } from "lucide-react";
 
+import { useAuth } from "@/components/auth-provider";
+import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
 import { Button } from "@/components/ui/button";
 import {
   type BusinessListItem,
@@ -32,6 +34,7 @@ type Coordinates = {
 
 export function CatalogHome() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const { isReady, isAuthenticated, runWithSession } = useAuth();
   const [searchDraft, setSearchDraft] = useState("");
   const [zoneDraft, setZoneDraft] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -57,8 +60,16 @@ export function CatalogHome() {
       return;
     }
 
+    const loadCategories = async () => {
+      if (isReady && isAuthenticated) {
+        return runWithSession((accessToken) => getCategories(apiUrl, accessToken));
+      }
+
+      return getCategories(apiUrl);
+    };
+
     setIsCategoriesLoading(true);
-    getCategories(apiUrl)
+    loadCategories()
       .then((items) => {
         if (!cancelled) {
           setCategories(items);
@@ -78,25 +89,35 @@ export function CatalogHome() {
     return () => {
       cancelled = true;
     };
-  }, [apiUrl]);
+  }, [apiUrl, isAuthenticated, isReady, runWithSession]);
 
   useEffect(() => {
     const currentRequest = requestSeq.current + 1;
     requestSeq.current = currentRequest;
 
+    const loadBusinesses = async () => {
+      const params = {
+        q: searchDraft.trim() || undefined,
+        category: selectedCategory || undefined,
+        zone: zoneDraft.trim() || undefined,
+        near_lat: locationFilter?.lat,
+        near_lng: locationFilter?.lng,
+        sort: locationFilter ? "distance" : "relevance",
+        page,
+        page_size: PAGE_SIZE
+      } as const;
+
+      if (isReady && isAuthenticated) {
+        return runWithSession((accessToken) => getBusinesses(apiUrl, params, accessToken));
+      }
+
+      return getBusinesses(apiUrl, params);
+    };
+
     setIsBusinessesLoading(true);
     setListError(null);
 
-    getBusinesses(apiUrl, {
-      q: searchDraft.trim() || undefined,
-      category: selectedCategory || undefined,
-      zone: zoneDraft.trim() || undefined,
-      near_lat: locationFilter?.lat,
-      near_lng: locationFilter?.lng,
-      sort: locationFilter ? "distance" : "relevance",
-      page,
-      page_size: PAGE_SIZE
-    })
+    loadBusinesses()
       .then((response) => {
         if (requestSeq.current === currentRequest) {
           setBusinesses(response);
@@ -117,7 +138,18 @@ export function CatalogHome() {
           setIsBusinessesLoading(false);
         }
       });
-  }, [apiUrl, locationFilter, page, retryTick, searchDraft, selectedCategory, zoneDraft]);
+  }, [
+    apiUrl,
+    isAuthenticated,
+    isReady,
+    locationFilter,
+    page,
+    retryTick,
+    runWithSession,
+    searchDraft,
+    selectedCategory,
+    zoneDraft
+  ]);
 
   const zones = useMemo(() => {
     const unique = new Set<string>();
@@ -183,7 +215,23 @@ export function CatalogHome() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-5 px-4 pb-10 pt-4 sm:px-6">
       <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-700">Tepic Catalog</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-700">Tepic Catalog</p>
+          <div className="flex items-center gap-2">
+            <Button asChild size="sm" variant="secondary">
+              <Link href="/favorites">Favoritos</Link>
+            </Button>
+            {isReady && isAuthenticated ? (
+              <Button asChild size="sm" variant="ghost">
+                <Link href="/profile">Perfil</Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm">
+                <Link href="/auth">Entrar</Link>
+              </Button>
+            )}
+          </div>
+        </div>
         <h1 className="text-2xl font-black tracking-tight text-zinc-950 sm:text-3xl">
           Descubre negocios locales en menos de dos toques
         </h1>
@@ -268,9 +316,7 @@ export function CatalogHome() {
       </section>
 
       <section className="space-y-3">
-        {isBusinessesLoading ? (
-          <LoadingState />
-        ) : null}
+        {isBusinessesLoading ? <LoadingState /> : null}
 
         {listError ? (
           <article className="rounded-[22px] bg-rose-50 p-4 text-rose-900 ring-1 ring-rose-200">
@@ -366,12 +412,21 @@ function CategoryChip({
 
 function BusinessCard({ business }: { business: BusinessListItem }) {
   return (
-    <Link
-      href={`/businesses/${business.slug}`}
-      className="block overflow-hidden rounded-[22px] bg-white shadow-soft ring-1 ring-black/5 transition hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-      aria-label={`Ver ficha de ${business.name}`}
-    >
-      <article>
+    <article className="relative overflow-hidden rounded-[22px] bg-white shadow-soft ring-1 ring-black/5 transition hover:shadow-lg">
+      <div className="absolute right-3 top-3 z-10">
+        <FavoriteToggleButton
+          businessId={business.id}
+          businessName={business.name}
+          initialIsFavorited={business.is_favorited}
+          compact
+        />
+      </div>
+
+      <Link
+        href={`/businesses/${business.slug}`}
+        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        aria-label={`Ver ficha de ${business.name}`}
+      >
         {business.cover_image_url ? (
           <img src={business.cover_image_url} alt={business.name} className="h-36 w-full object-cover" />
         ) : (
@@ -418,8 +473,8 @@ function BusinessCard({ business }: { business: BusinessListItem }) {
 
           <p className="text-sm font-semibold text-brand-700">Ver ficha</p>
         </div>
-      </article>
-    </Link>
+      </Link>
+    </article>
   );
 }
 

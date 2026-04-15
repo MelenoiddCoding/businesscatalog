@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3, MapPin, MessageCircle, Star, Store } from "lucide-react";
 
+import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
 import { Button } from "@/components/ui/button";
 import {
   ApiRequestError,
@@ -103,29 +104,37 @@ export default async function BusinessDetailPage({
           </div>
 
           <div className="mt-5">
-            {whatsappUrl ? (
-              <Button asChild className="w-full sm:w-auto">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Contactar por WhatsApp a ${business.name}`}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  Contactar por WhatsApp
-                </a>
-              </Button>
-            ) : (
-              <div className="space-y-2">
-                <Button disabled className="w-full sm:w-auto">
-                  <MessageCircle className="h-4 w-4" />
-                  WhatsApp no disponible
+            <div className="flex flex-wrap items-start gap-2">
+              <FavoriteToggleButton
+                businessId={business.id}
+                businessName={business.name}
+                initialIsFavorited={business.is_favorited}
+              />
+
+              {whatsappUrl ? (
+                <Button asChild className="w-full sm:w-auto">
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Contactar por WhatsApp a ${business.name}`}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Contactar por WhatsApp
+                  </a>
                 </Button>
-                <p className="text-sm text-zinc-600">
-                  Este negocio aun no tiene un numero valido para contacto por WhatsApp.
-                </p>
-              </div>
-            )}
+              ) : (
+                <div className="space-y-2">
+                  <Button disabled className="w-full sm:w-auto">
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp no disponible
+                  </Button>
+                  <p className="text-sm text-zinc-600">
+                    Este negocio aun no tiene un numero valido para contacto por WhatsApp.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       </header>

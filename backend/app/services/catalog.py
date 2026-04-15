@@ -120,7 +120,11 @@ class CatalogService:
             rows = cursor.fetchall()
         return [dict(row) for row in rows]
 
-    def list_businesses(self, filters: BusinessQueryFilters) -> dict[str, Any]:
+    def list_businesses(
+        self,
+        filters: BusinessQueryFilters,
+        viewer_user_id: str | None = None,
+    ) -> dict[str, Any]:
         where_clauses = ["b.status = 'published'"]
         where_params: list[Any] = []
 
@@ -297,7 +301,15 @@ class CatalogService:
                     'latitude', bl.latitude::float8,
                     'longitude', bl.longitude::float8
                 ) AS location,
-                false AS is_favorited
+                CASE
+                    WHEN %s::uuid IS NULL THEN false
+                    ELSE EXISTS (
+                        SELECT 1
+                        FROM favorites f
+                        WHERE f.user_id = %s::uuid
+                          AND f.business_id = b.id
+                    )
+                END AS is_favorited
             FROM businesses b
             JOIN business_locations bl ON bl.business_id = b.id
             WHERE {where_sql}
@@ -308,6 +320,7 @@ class CatalogService:
 
         list_params: list[Any] = []
         list_params.extend(distance_params)
+        list_params.extend([viewer_user_id, viewer_user_id])
         list_params.extend(where_params)
         list_params.extend(order_params)
         list_params.extend([filters.page_size, offset])
@@ -328,7 +341,11 @@ class CatalogService:
             },
         }
 
-    def get_business_detail(self, slug: str) -> dict[str, Any] | None:
+    def get_business_detail(
+        self,
+        slug: str,
+        viewer_user_id: str | None = None,
+    ) -> dict[str, Any] | None:
         base_sql = """
             SELECT
                 b.id::text AS id,
@@ -408,6 +425,20 @@ class CatalogService:
                     product["price"] = float(product["price"])
                 products.append(product)
 
+            is_favorited = False
+            if viewer_user_id:
+                cursor.execute(
+                    """
+                    SELECT 1
+                    FROM favorites
+                    WHERE user_id = %s
+                      AND business_id = %s
+                    LIMIT 1
+                    """,
+                    [viewer_user_id, business_id],
+                )
+                is_favorited = _fetch_first_row(cursor) is not None
+
         opening_hours = normalize_opening_hours(business_row["opening_hours"])
         return {
             "id": business_row["id"],
@@ -431,7 +462,7 @@ class CatalogService:
             "opening_hours": opening_hours,
             "images": images,
             "products": products,
-            "is_favorited": False,
+            "is_favorited": is_favorited,
         }
 
     def list_business_reviews(
@@ -553,5 +584,5 @@ class CatalogService:
                 "latitude": location["latitude"],
                 "longitude": location["longitude"],
             },
-            "is_favorited": False,
+            "is_favorited": bool(row["is_favorited"]),
         }

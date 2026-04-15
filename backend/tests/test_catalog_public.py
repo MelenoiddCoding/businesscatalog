@@ -12,7 +12,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from app.main import app, get_catalog_service  # noqa: E402
+from app.main import app, get_catalog_service, get_optional_auth_context  # noqa: E402
 from app.services.catalog import BusinessQueryFilters, ReviewQueryFilters  # noqa: E402
 
 
@@ -31,8 +31,13 @@ class FakeCatalogService:
             }
         ]
 
-    def list_businesses(self, filters: BusinessQueryFilters) -> dict[str, Any]:
+    def list_businesses(
+        self,
+        filters: BusinessQueryFilters,
+        viewer_user_id: str | None = None,
+    ) -> dict[str, Any]:
         self.last_business_filters = filters
+        _ = viewer_user_id
         return {
             "items": [
                 {
@@ -61,7 +66,12 @@ class FakeCatalogService:
             },
         }
 
-    def get_business_detail(self, slug: str) -> dict[str, Any] | None:
+    def get_business_detail(
+        self,
+        slug: str,
+        viewer_user_id: str | None = None,
+    ) -> dict[str, Any] | None:
+        _ = viewer_user_id
         if slug == "missing":
             return None
         return {
@@ -110,6 +120,7 @@ class CatalogPublicApiTests(unittest.TestCase):
     def setUp(self) -> None:
         self.fake_catalog = FakeCatalogService()
         app.dependency_overrides[get_catalog_service] = lambda: self.fake_catalog
+        app.dependency_overrides[get_optional_auth_context] = lambda: None
         self.client = TestClient(app)
 
     def tearDown(self) -> None:

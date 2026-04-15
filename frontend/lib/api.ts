@@ -110,6 +110,70 @@ export type BusinessReviewsResponse = {
   pagination: Pagination;
 };
 
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+};
+
+export type AuthSessionResponse = {
+  user: AuthUser;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+};
+
+export type RefreshSessionResponse = {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+};
+
+export type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+};
+
+export type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type UserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  created_at: string;
+};
+
+export type FavoriteItem = {
+  business_id: string;
+  slug: string;
+  name: string;
+  zone: string | null;
+  cover_image_url: string | null;
+  created_at: string;
+};
+
+export type FavoritesResponse = {
+  items: FavoriteItem[];
+};
+
+type RequestMethod = "GET" | "POST" | "DELETE";
+
+type RequestOptions = {
+  method?: RequestMethod;
+  body?: unknown;
+  accessToken?: string;
+};
+
 type BusinessSearchParams = {
   q?: string;
   category?: string;
@@ -145,9 +209,22 @@ function normalizeApiUrl(apiUrl?: string): string | null {
   return apiUrl.replace(/\/$/, "");
 }
 
-async function requestJson<T>(url: string): Promise<T> {
+async function requestJson<T>(url: string, options: RequestOptions = {}): Promise<T> {
+  const headers: Record<string, string> = {};
+
+  if (options.accessToken) {
+    headers.Authorization = `Bearer ${options.accessToken}`;
+  }
+
+  if (options.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const response = await fetch(url, {
-    cache: "no-store"
+    method: options.method ?? "GET",
+    cache: "no-store",
+    headers,
+    body: options.body !== undefined ? JSON.stringify(options.body) : undefined
   });
 
   if (!response.ok) {
@@ -159,13 +236,21 @@ async function requestJson<T>(url: string): Promise<T> {
         message = body.error.message;
       }
     } catch {
-      // Best effort parse; keep fallback message when body is not JSON.
+      // Keep fallback message when body is not JSON.
     }
 
     throw new ApiRequestError(message, response.status);
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return (await response.json()) as T;
+}
+
+async function requestNoContent(url: string, options: RequestOptions = {}): Promise<void> {
+  await requestJson<void>(url, options);
 }
 
 export async function getApiHealth(apiUrl?: string): Promise<ApiHealth> {
@@ -207,19 +292,25 @@ export async function getApiHealth(apiUrl?: string): Promise<ApiHealth> {
   }
 }
 
-export async function getCategories(apiUrl?: string): Promise<CategoryItem[]> {
+export async function getCategories(
+  apiUrl?: string,
+  accessToken?: string
+): Promise<CategoryItem[]> {
   const baseUrl = normalizeApiUrl(apiUrl);
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_URL is not configured.");
   }
 
-  const data = await requestJson<{ items?: CategoryItem[] }>(`${baseUrl}/categories`);
+  const data = await requestJson<{ items?: CategoryItem[] }>(`${baseUrl}/categories`, {
+    accessToken
+  });
   return Array.isArray(data.items) ? data.items : [];
 }
 
 export async function getBusinesses(
   apiUrl: string | undefined,
-  params: BusinessSearchParams = {}
+  params: BusinessSearchParams = {},
+  accessToken?: string
 ): Promise<BusinessesResponse> {
   const baseUrl = normalizeApiUrl(apiUrl);
   if (!baseUrl) {
@@ -250,7 +341,9 @@ export async function getBusinesses(
     ? `${baseUrl}/businesses?${searchParams.toString()}`
     : `${baseUrl}/businesses`;
 
-  const data = await requestJson<Partial<BusinessesResponse>>(endpoint);
+  const data = await requestJson<Partial<BusinessesResponse>>(endpoint, {
+    accessToken
+  });
 
   return {
     items: Array.isArray(data.items) ? data.items : [],
@@ -265,20 +358,24 @@ export async function getBusinesses(
 
 export async function getBusinessDetail(
   apiUrl: string | undefined,
-  slug: string
+  slug: string,
+  accessToken?: string
 ): Promise<BusinessDetail> {
   const baseUrl = normalizeApiUrl(apiUrl);
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_URL is not configured.");
   }
 
-  return requestJson<BusinessDetail>(`${baseUrl}/businesses/${encodeURIComponent(slug)}`);
+  return requestJson<BusinessDetail>(`${baseUrl}/businesses/${encodeURIComponent(slug)}`, {
+    accessToken
+  });
 }
 
 export async function getBusinessReviews(
   apiUrl: string | undefined,
   slug: string,
-  params: ReviewsQueryParams = {}
+  params: ReviewsQueryParams = {},
+  accessToken?: string
 ): Promise<BusinessReviewsResponse> {
   const baseUrl = normalizeApiUrl(apiUrl);
   if (!baseUrl) {
@@ -299,7 +396,9 @@ export async function getBusinessReviews(
     ? `${baseUrl}/businesses/${encodeURIComponent(slug)}/reviews?${searchParams.toString()}`
     : `${baseUrl}/businesses/${encodeURIComponent(slug)}/reviews`;
 
-  const data = await requestJson<Partial<BusinessReviewsResponse>>(endpoint);
+  const data = await requestJson<Partial<BusinessReviewsResponse>>(endpoint, {
+    accessToken
+  });
 
   return {
     items: Array.isArray(data.items) ? data.items : [],
@@ -314,4 +413,122 @@ export async function getBusinessReviews(
       total_pages: 0
     }
   };
+}
+
+export async function registerUser(
+  apiUrl: string | undefined,
+  payload: RegisterPayload
+): Promise<AuthSessionResponse> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestJson<AuthSessionResponse>(`${baseUrl}/auth/register`, {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function loginUser(
+  apiUrl: string | undefined,
+  payload: LoginPayload
+): Promise<AuthSessionResponse> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestJson<AuthSessionResponse>(`${baseUrl}/auth/login`, {
+    method: "POST",
+    body: payload
+  });
+}
+
+export async function refreshSession(
+  apiUrl: string | undefined,
+  refreshToken: string
+): Promise<RefreshSessionResponse> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestJson<RefreshSessionResponse>(`${baseUrl}/auth/refresh`, {
+    method: "POST",
+    body: { refresh_token: refreshToken }
+  });
+}
+
+export async function logoutUser(apiUrl: string | undefined, accessToken: string): Promise<void> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestNoContent(`${baseUrl}/auth/logout`, {
+    method: "POST",
+    accessToken
+  });
+}
+
+export async function getMyProfile(apiUrl: string | undefined, accessToken: string): Promise<UserProfile> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestJson<UserProfile>(`${baseUrl}/me`, {
+    accessToken
+  });
+}
+
+export async function getFavorites(apiUrl: string | undefined, accessToken: string): Promise<FavoritesResponse> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  const data = await requestJson<Partial<FavoritesResponse>>(`${baseUrl}/favorites`, {
+    accessToken
+  });
+
+  return {
+    items: Array.isArray(data.items) ? data.items : []
+  };
+}
+
+export async function addFavorite(
+  apiUrl: string | undefined,
+  businessId: string,
+  accessToken: string
+): Promise<{ business_id: string; created_at: string }> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestJson<{ business_id: string; created_at: string }>(
+    `${baseUrl}/favorites/${encodeURIComponent(businessId)}`,
+    {
+      method: "POST",
+      accessToken
+    }
+  );
+}
+
+export async function removeFavorite(
+  apiUrl: string | undefined,
+  businessId: string,
+  accessToken: string
+): Promise<void> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestNoContent(`${baseUrl}/favorites/${encodeURIComponent(businessId)}`, {
+    method: "DELETE",
+    accessToken
+  });
 }

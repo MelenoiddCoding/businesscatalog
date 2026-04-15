@@ -15,6 +15,20 @@
 - Si geolocalizacion es denegada o falla, la experiencia debe continuar por zona sin bloquear flujo.
 - Los escenarios `SHOULD` no bloquean salida MVP; los `MUST` si la bloquean.
 
+## Corte de alcance B2 (Auth + Favoritos + Perfil basico)
+- Este bloque considera como `MUST` los escenarios de:
+  - Registro
+  - Inicio de sesion
+  - Gestion basica de sesion
+  - Favoritos
+  - Perfil de usuario (solo lectura)
+- Para B2 quedan fuera de alcance:
+  - OAuth / social login
+  - recuperacion de password
+  - edicion de perfil (`PATCH /me`)
+  - escritura de resenas
+  - funcionalidades nuevas de catalogo fuera de regresion B1
+
 ## Registro
 
 ### Escenario: registro exitoso
@@ -67,6 +81,12 @@
 - Cuando intento abrir Favoritos o Perfil
 - Entonces el sistema me redirige a auth
 - Y conserva la ruta destino para regresar despues del login
+
+### Escenario: sesion expirada en ruta protegida
+- Dado que tenia una sesion previa pero mis tokens ya no son validos
+- Cuando intento abrir Favoritos o Perfil
+- Entonces el sistema limpia la sesion local
+- Y me redirige a iniciar sesion sin bloquear el resto de la app publica
 
 ## Home y exploracion
 
@@ -187,6 +207,12 @@
 - Entonces veo un estado vacio claro
 - Y una accion para volver a explorar negocios
 
+### Escenario: favorito sobre negocio no disponible
+- Dado que estoy autenticado
+- Cuando intento guardar o mantener en favoritos un negocio no publicado
+- Entonces la API rechaza la operacion
+- Y la UI muestra un mensaje claro sin romper la pantalla
+
 ## WhatsApp CTA
 
 ### Escenario: apertura de WhatsApp con mensaje contextual
@@ -214,6 +240,12 @@
 - Dado que estoy autenticado
 - Cuando entro a Perfil
 - Entonces veo mis datos basicos y accesos a favoritos y cierre de sesion
+
+### Escenario: perfil sin edicion en B2
+- Dado que estoy autenticado
+- Cuando entro a Perfil en el bloque B2
+- Entonces solo puedo consultar mis datos basicos
+- Y no se muestra flujo de edicion de perfil
 
 ## Reglas UX y accesibilidad obligatorias
 - El CTA principal de cada ficha debe ser WhatsApp si el negocio tiene numero valido.
