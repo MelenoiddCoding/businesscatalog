@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { LocateFixed, MapPin, Search, Star, Store, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -365,52 +366,60 @@ function CategoryChip({
 
 function BusinessCard({ business }: { business: BusinessListItem }) {
   return (
-    <article className="overflow-hidden rounded-[22px] bg-white shadow-soft ring-1 ring-black/5">
-      {business.cover_image_url ? (
-        <img src={business.cover_image_url} alt={business.name} className="h-36 w-full object-cover" />
-      ) : (
-        <div className="grid h-36 place-items-center bg-gradient-to-br from-brand-100 via-brand-50 to-white text-zinc-500">
-          <Store className="h-8 w-8" />
-        </div>
-      )}
+    <Link
+      href={`/businesses/${business.slug}`}
+      className="block overflow-hidden rounded-[22px] bg-white shadow-soft ring-1 ring-black/5 transition hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+      aria-label={`Ver ficha de ${business.name}`}
+    >
+      <article>
+        {business.cover_image_url ? (
+          <img src={business.cover_image_url} alt={business.name} className="h-36 w-full object-cover" />
+        ) : (
+          <div className="grid h-36 place-items-center bg-gradient-to-br from-brand-100 via-brand-50 to-white text-zinc-500">
+            <Store className="h-8 w-8" />
+          </div>
+        )}
 
-      <div className="space-y-3 p-4">
-        <header>
-          <h2 className="line-clamp-1 text-base font-black text-zinc-950">{business.name}</h2>
-          <p className="line-clamp-2 text-sm text-zinc-600">
-            {business.description ?? "Sin descripcion disponible por ahora."}
-          </p>
-        </header>
+        <div className="space-y-3 p-4">
+          <header>
+            <h2 className="line-clamp-1 text-base font-black text-zinc-950">{business.name}</h2>
+            <p className="line-clamp-2 text-sm text-zinc-600">
+              {business.description ?? "Sin descripcion disponible por ahora."}
+            </p>
+          </header>
 
-        <div className="flex flex-wrap gap-1.5">
-          {business.categories.length > 0 ? (
-            business.categories.map((category) => (
-              <span key={category} className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-700">
-                {category}
+          <div className="flex flex-wrap gap-1.5">
+            {business.categories.length > 0 ? (
+              business.categories.map((category) => (
+                <span key={category} className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-700">
+                  {category}
+                </span>
+              ))
+            ) : (
+              <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-500">
+                Sin categoria
               </span>
-            ))
-          ) : (
-            <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-500">
-              Sin categoria
-            </span>
-          )}
-        </div>
+            )}
+          </div>
 
-        <dl className="space-y-1 text-sm text-zinc-600">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-zinc-400" />
-            <dd className="line-clamp-1">{business.zone ?? business.address ?? "Zona no especificada"}</dd>
-          </div>
-          <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-amber-500" />
-            <dd>
-              {formatRating(business.rating_avg, business.rating_count)}
-              {business.distance_m !== null ? ` - ${formatDistance(business.distance_m)}` : ""}
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </article>
+          <dl className="space-y-1 text-sm text-zinc-600">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-zinc-400" />
+              <dd className="line-clamp-1">{business.zone ?? business.address ?? "Zona no especificada"}</dd>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-amber-500" />
+              <dd>
+                {formatRating(business.rating_avg, business.rating_count)}
+                {business.distance_m !== null ? ` - ${formatDistance(business.distance_m)}` : ""}
+              </dd>
+            </div>
+          </dl>
+
+          <p className="text-sm font-semibold text-brand-700">Ver ficha</p>
+        </div>
+      </article>
+    </Link>
   );
 }
 

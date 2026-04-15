@@ -43,6 +43,73 @@ export type BusinessesResponse = {
   pagination: Pagination;
 };
 
+export type BusinessDetailCategory = {
+  slug: string;
+  name: string;
+};
+
+export type BusinessImage = {
+  url: string;
+  kind: string;
+  position: number;
+};
+
+export type BusinessProduct = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  currency: string | null;
+  is_featured: boolean;
+};
+
+export type BusinessDetail = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  phone: string | null;
+  whatsapp_number: string | null;
+  email: string | null;
+  website: string | null;
+  address: string | null;
+  zone: string | null;
+  rating_avg: number | null;
+  rating_count: number | null;
+  is_verified: boolean;
+  categories: BusinessDetailCategory[];
+  location: {
+    latitude: number;
+    longitude: number;
+  } | null;
+  opening_hours: Record<string, Array<{ open: string; close: string }>>;
+  images: BusinessImage[];
+  products: BusinessProduct[];
+  is_favorited: boolean;
+};
+
+export type BusinessReview = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  status: string;
+  visited_at: string | null;
+  created_at: string;
+  author: {
+    name: string | null;
+    avatar_url: string | null;
+  };
+};
+
+export type BusinessReviewsResponse = {
+  items: BusinessReview[];
+  summary: {
+    rating_avg: number;
+    rating_count: number;
+  };
+  pagination: Pagination;
+};
+
 type BusinessSearchParams = {
   q?: string;
   category?: string;
@@ -55,7 +122,12 @@ type BusinessSearchParams = {
   page_size?: number;
 };
 
-class ApiRequestError extends Error {
+type ReviewsQueryParams = {
+  page?: number;
+  page_size?: number;
+};
+
+export class ApiRequestError extends Error {
   status: number;
 
   constructor(message: string, status: number) {
@@ -182,6 +254,59 @@ export async function getBusinesses(
 
   return {
     items: Array.isArray(data.items) ? data.items : [],
+    pagination: data.pagination ?? {
+      page: params.page ?? 1,
+      page_size: params.page_size ?? 20,
+      total_items: 0,
+      total_pages: 0
+    }
+  };
+}
+
+export async function getBusinessDetail(
+  apiUrl: string | undefined,
+  slug: string
+): Promise<BusinessDetail> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return requestJson<BusinessDetail>(`${baseUrl}/businesses/${encodeURIComponent(slug)}`);
+}
+
+export async function getBusinessReviews(
+  apiUrl: string | undefined,
+  slug: string,
+  params: ReviewsQueryParams = {}
+): Promise<BusinessReviewsResponse> {
+  const baseUrl = normalizeApiUrl(apiUrl);
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  const searchParams = new URLSearchParams();
+
+  if (params.page !== undefined) {
+    searchParams.set("page", String(params.page));
+  }
+
+  if (params.page_size !== undefined) {
+    searchParams.set("page_size", String(params.page_size));
+  }
+
+  const endpoint = searchParams.toString()
+    ? `${baseUrl}/businesses/${encodeURIComponent(slug)}/reviews?${searchParams.toString()}`
+    : `${baseUrl}/businesses/${encodeURIComponent(slug)}/reviews`;
+
+  const data = await requestJson<Partial<BusinessReviewsResponse>>(endpoint);
+
+  return {
+    items: Array.isArray(data.items) ? data.items : [],
+    summary: data.summary ?? {
+      rating_avg: 0,
+      rating_count: 0
+    },
     pagination: data.pagination ?? {
       page: params.page ?? 1,
       page_size: params.page_size ?? 20,
