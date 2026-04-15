@@ -1,0 +1,39 @@
+previews:
+  generation: auto_preview
+
+services:
+  - type: web
+    name: tepic-catalog-api
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /health
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: APP_ENV
+        value: production
+      - key: NEXT_PUBLIC_APP_NAME
+        value: Tepic Catalog
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tepic-catalog-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: "60"
+
+databases:
+  - name: tepic-catalog-postgres
+    databaseName: tepic_catalog
+    user: tepic_catalog
+    plan: free
+    postgresMajorVersion: "15"
+    ipAllowList: []

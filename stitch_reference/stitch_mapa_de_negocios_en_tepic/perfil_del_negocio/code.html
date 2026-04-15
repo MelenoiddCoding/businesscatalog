@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Perfil del Negocio - Café Loma 42</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee6c2b",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221610",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for horizontal scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-[#181311] dark:text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl bg-white dark:bg-[#1a120d]">
+<!-- Header Image & Top Nav -->
+<div class="relative w-full h-72 shrink-0">
+<!-- Top App Bar (Overlay) -->
+<div class="absolute top-0 left-0 w-full z-20 flex items-center justify-between p-4 pt-12 bg-gradient-to-b from-black/60 to-transparent">
+<button class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<div class="flex gap-3">
+<button class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors">
+<span class="material-symbols-outlined text-[24px]">ios_share</span>
+</button>
+</div>
+</div>
+<!-- Hero Image -->
+<div class="w-full h-full bg-center bg-no-repeat bg-cover" data-alt="Cozy cafe interior with warm lighting and wooden tables" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCnqP-rwlwv2skSP6nmQmlUwhoV3EXoYwQlBCmkvJ0zr4nQ1DEvQsoeeHwD-ilUoHom2WFyCHmm0FL7_u-vHmg2pnvsIcUprKOXL_eSiUvJAhwR3Gw0im-a4bUItMWB-K92z4qmhixRCk4vM8DjSkQ3OEpu49GCgrhkqTbCv03nv03kTPHqArv4X5lnTN4FVZHjk3AoCBLFTp55x6xqDyauJ10PBhhVl0OKNCbNyH15CKB6FnmR_t9pjenbLSsc7KcT9cVMGgriRpo");'>
+</div>
+<!-- Curve Overlay for smooth transition -->
+<div class="absolute bottom-[-1px] left-0 w-full h-6 bg-white dark:bg-[#1a120d] rounded-t-[24px]"></div>
+</div>
+<!-- Main Content Container -->
+<div class="relative px-5 pb-24 -mt-2">
+<!-- Header Section with FAB -->
+<div class="relative flex flex-col mb-6">
+<!-- FAB - Absolute positioned relative to this container -->
+<div class="absolute -top-12 right-0">
+<button class="flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg text-white hover:bg-orange-600 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-[28px] filled" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<!-- Business Name & Tags -->
+<h1 class="text-[#181311] dark:text-gray-100 tracking-tight text-3xl font-extrabold leading-tight mb-2">Café Loma 42</h1>
+<div class="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400 mb-3">
+<span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">Cafetería</span>
+<span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">Desayunos</span>
+<span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">$$</span>
+</div>
+<!-- Rating & Status Row -->
+<div class="flex items-center gap-4 text-sm">
+<div class="flex items-center gap-1 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-lg">
+<span class="text-[#181311] dark:text-white font-bold text-base">4.8</span>
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-gray-500 dark:text-gray-400 text-xs ml-1 underline">(124)</span>
+</div>
+<div class="h-4 w-[1px] bg-gray-300 dark:bg-gray-700"></div>
+<p class="text-green-600 dark:text-green-400 font-semibold">Abierto <span class="text-gray-500 dark:text-gray-400 font-normal">• Cierra a las 10:00 PM</span></p>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="grid grid-cols-3 gap-3 mb-8">
+<button class="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 active:bg-gray-100 dark:active:bg-gray-700 transition-colors">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined">call</span>
+</div>
+<span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Llamar</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 active:bg-gray-100 dark:active:bg-gray-700 transition-colors">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined">near_me</span>
+</div>
+<span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Cómo llegar</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 active:bg-gray-100 dark:active:bg-gray-700 transition-colors">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400">
+<span class="material-symbols-outlined">chat</span>
+</div>
+<span class="text-xs font-semibold text-gray-700 dark:text-gray-300">WhatsApp</span>
+</button>
+</div>
+<!-- Divider -->
+<div class="h-[1px] w-full bg-gray-100 dark:bg-gray-800 mb-6"></div>
+<!-- About Section -->
+<div class="mb-8">
+<h2 class="text-lg font-bold text-[#181311] dark:text-white mb-3">Sobre el lugar</h2>
+<p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">
+                    Un rincón acogedor en el corazón de Tepic. Especialidad en café de altura nayarita y postres caseros. Ideal para trabajar o una tarde con amigos. Contamos con terraza y área climatizada.
+                </p>
+<!-- Location Mini Map -->
+<div class="rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
+<div class="bg-gray-200 dark:bg-gray-700 h-32 w-full relative bg-cover bg-center" data-alt="Map view showing location in Tepic" data-location="Tepic Map Preview" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCJwB8OTphnMp0r1ZQSkBwNq0S73uDYWk6Z-r3ph2qYQeW1UbF91Ge1LHei3-M5G22E114HyU7A_K5SkC3LhAbi50Hku56lrEIG_eTa-ATsjT2aU4mtA_tNZEepb8HWe5UoP7jGgSgQGZUSi8z6dYAzRqxiszcVEiLqcNPk1XDANSPWbKc31VXMzJ-GqMutyRvTbMmcYrXz8zt3INH4dBkCDj9xNIM7AHYGkiaEpE69aZF0gn5OjMdprsW1kZW6AYD--P68uBWxsJE");'>
+<div class="absolute inset-0 bg-black/10 flex items-center justify-center">
+<div class="bg-white dark:bg-gray-900 text-primary px-3 py-1.5 rounded-full shadow-md font-bold text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                Calle I. Zaragoza 123
+                            </div>
+</div>
+</div>
+<div class="p-3 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+<div class="text-xs text-gray-500 dark:text-gray-400">Centro, Tepic, Nayarit</div>
+<span class="text-primary text-xs font-bold">Ver mapa</span>
+</div>
+</div>
+</div>
+<!-- Gallery Section -->
+<div class="mb-8">
+<div class="flex justify-between items-end mb-4">
+<h2 class="text-lg font-bold text-[#181311] dark:text-white">Galería</h2>
+<span class="text-primary text-sm font-semibold cursor-pointer">Ver todo</span>
+</div>
+<div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar -mx-5 px-5">
+<div class="flex-none w-32 h-32 rounded-xl overflow-hidden bg-gray-100 relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Close up of latte art coffee" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAz8aOl6vBwHA81pt0Y9QzmpAN2YKmLSjopk0hcu0tDWxaIaRKoy07JQxtWbyDHfrrkD1d3QAIPvWT27zVQPJlDKdtlaeSBZ4BZTSEnEoAanWNiSD6VMvwoBw9l2Vs1OlXxK5iygYEmyPYXqXQzohvnpidhYReS1aeaJBUqiwrgbnIU_3nDi7iyg82hUzToQ2UesDc-p3lpOwwV0CbwWafjq-NsHLGBuB_93oDQN-WsTgxb9PXk6c5iJEYquy_xmJAL25FND8RK6d8");'></div>
+</div>
+<div class="flex-none w-32 h-32 rounded-xl overflow-hidden bg-gray-100 relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="People sitting at cafe table" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDgEwgsEDbIdHmn4jxX1T6NNFL8em1NOs50M4g7aAgudBZ2zPq_LLh3d2HopYHqRClc14ZTyGAXdB2hPXvJDTkWBz6vEcLXPCyhz5C3cfBBCo1yoenRGzONFZLECDqVN5Xg0fE6FauTsxbTnvS12NHPO0DVWebZof_lsGBKkb0N7_qdikssmT838ZAZ1I6f9QW-b0o3W9RLyN1gbGRALx-GWkJbKHqWDIkmdjPEgHdNwWHUQKbocse25CiRPPmcDsgcBwasneKsJ2Q");'></div>
+</div>
+<div class="flex-none w-32 h-32 rounded-xl overflow-hidden bg-gray-100 relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Delicious pastries on display" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA5gkjN0i-4CdK4uHhH-v9d6XZi8w1oyeFc8_xjWu7e6nal0JEuKlfatV36LdLTC0AaXdFV1VaNbdbNER0MPYCUAG-Wre4T4pZDFkQKfR4yoR7eGKTqK4A2hTW8QdroQh4Apf_OuQsr_Z2sTSQ8jC3MxWPe-ohhmvBLBI5xI7-oW93nX5xZWQGUbMAGnND3-1h7yZ9sXz4sCKbC9AC5dCK7t_ykzz5IUIdb4PvIG31FtFNE8kcyUkA0WFKoWjCmPNbvZg3qocuHYBE");'></div>
+</div>
+<div class="flex-none w-32 h-32 rounded-xl overflow-hidden bg-gray-100 relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Outdoor seating area of cafe" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBI0pRbVPmublypv20ZuNXmTp4z8Yjz3jHTXq0zGXv-qAE3mnOOyGU9rnJFPP54Lw9Vti0QAkyWgS0kb3hKm5NZ_qa8BE-mO6-qoAnIw1dKuo_HETkZB_4yGVk_UfD3kPRSn3J5G6EEFqV8PX4NI33xc9gEgYw16ryA-WYSzaBCCP5AOpWOsHBFhIGXnMdqADR322pYZ-5sDuqd6NwfYK_XgYSfK1f_7MMMVJjkpk55cA3HedH2fXJLDeEjTYWQYS29KYfXJaRa3co");'></div>
+</div>
+</div>
+</div>
+<!-- Reviews Section -->
+<div>
+<h2 class="text-lg font-bold text-[#181311] dark:text-white mb-4">Opiniones</h2>
+<!-- Rating Summary -->
+<div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-5 flex items-center justify-between">
+<div class="flex flex-col items-center justify-center px-2">
+<span class="text-4xl font-extrabold text-[#181311] dark:text-white">4.8</span>
+<div class="flex text-primary text-[12px] mt-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 16px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 16px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 16px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 16px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 16px;">star_half</span>
+</div>
+<span class="text-xs text-gray-500 mt-1">124 reseñas</span>
+</div>
+<div class="h-12 w-[1px] bg-gray-200 dark:bg-gray-700"></div>
+<div class="flex-1 pl-4 flex flex-col gap-1 justify-center">
+<!-- Bar 5 -->
+<div class="flex items-center gap-2 text-xs">
+<span class="w-2">5</span>
+<div class="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<!-- Bar 4 -->
+<div class="flex items-center gap-2 text-xs">
+<span class="w-2">4</span>
+<div class="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 10%"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div class="flex items-center gap-2 text-xs">
+<span class="w-2">3</span>
+<div class="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-gray-400 h-full rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Single Review -->
+<div class="flex flex-col gap-4">
+<div class="border-b border-gray-100 dark:border-gray-800 pb-4">
+<div class="flex justify-between items-start mb-2">
+<div class="flex gap-3">
+<div class="h-10 w-10 rounded-full bg-gray-200 bg-cover bg-center" data-alt="Portrait of user Maria G." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuADxCrIZUurkQX5dZCTpXhm5pzC8sl502a5Yc1zA1dJKhWrKqFvbfvjrsvj7qXh_uMq-WMXxgmhmo51imtLoiDR8MD4EBI0XO09TGIe6NXWWmFApYWU0ldxByo6WqNHV9FpuMPUErdIHNS18pxNzkRNagiXYOig2DxUGfTgXCWAlB5kU-8A8TzCZ4a6dT6fmus5fDUbM4G90EIDRsPi5sRybV0oYblUS5wg54tKy9GXa5pm9pDxusBHjRz0dAE0C6HowQxMbBIAQ-Y");'></div>
+<div>
+<h4 class="font-bold text-sm dark:text-white">María González</h4>
+<div class="flex text-primary text-[10px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-gray-400">Hace 2 días</span>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-300">¡El mejor café de Tepic! El ambiente es super relajado y los baristas son muy amables. Recomiendo el Latte de Cajeta.</p>
+</div>
+<div class="border-b border-gray-100 dark:border-gray-800 pb-4">
+<div class="flex justify-between items-start mb-2">
+<div class="flex gap-3">
+<div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold bg-purple-100 text-purple-600">
+                                    JR
+                                </div>
+<div>
+<h4 class="font-bold text-sm dark:text-white">Juan Ramirez</h4>
+<div class="flex text-primary text-[10px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+<span class="material-symbols-outlined text-gray-300" style="font-variation-settings: 'FILL' 1; font-size: 14px;">star</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-gray-400">Hace 1 semana</span>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-300">Lugar bonito, pero estaba un poco lleno el domingo. El servicio fue un poco lento pero la comida valió la pena.</p>
+</div>
+<button class="w-full py-3 text-center text-primary font-semibold text-sm border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
+                        Leer las 124 opiniones
+                    </button>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Navigation -->
+<div class="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-[#1a120d] border-t border-gray-100 dark:border-gray-800 pb-safe max-w-md mx-auto">
+<div class="flex justify-around items-center h-16 px-2">
+<button class="flex flex-col items-center justify-center w-full gap-1 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[10px] font-medium">Inicio</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full gap-1 text-primary">
+<span class="material-symbols-outlined text-[24px] filled" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="text-[10px] font-medium">Explorar</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full gap-1 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+<span class="text-[10px] font-medium">Favoritos</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full gap-1 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-[10px] font-medium">Perfil</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mapa de Negocios en Tepic</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee6c2b",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221610",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* Custom scrollbar hiding for the carousel */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-gray-100 overflow-hidden h-screen w-full relative">
+<!-- Map Background Layer -->
+<div class="absolute inset-0 z-0 bg-gray-200 dark:bg-gray-800">
+<!-- Placeholder for the actual map. In a real app, this would be Mapbox/Google Maps. -->
+<!-- We simulate a map with a background image -->
+<div class="w-full h-full bg-cover bg-center" data-alt="Map view of Tepic streets with light gray styling" data-location="Tepic, Nayarit" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBGIutiwUwcASav86ta50t9fdUAcl-M3gatUXfwu_E9ATMjfcoI2H9fd0WLhPmlVS-KcLab9B9XhwzagvgltPcKBmfN5znjr5gKUGNPi13bFAYIT7wLP7J8r_R2RglFWb_5H5FNX30qOwU1isIDLF3o3jyZzssFHW06aUaNhTSt5p8SicYH-t7PlXu0U8WJAxu726UnbfLawAGEKWmpyZEkHCRc_apHX26mYmDFtUSKqv1nB3GvouX_k4lNXYBG6L6RxNegBjzNPME');">
+</div>
+<!-- Simulated Map Markers -->
+<!-- Marker 1: Active/Selected -->
+<div class="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="bg-primary text-white px-3 py-1 rounded-full shadow-lg text-xs font-bold mb-1 whitespace-nowrap">Café de la Loma</div>
+<span class="material-symbols-outlined text-primary text-4xl drop-shadow-md fill-current" style="font-variation-settings: 'FILL' 1;">
+                location_on
+            </span>
+</div>
+<!-- Marker 2: Inactive -->
+<div class="absolute top-[30%] left-[20%] flex flex-col items-center opacity-80">
+<span class="material-symbols-outlined text-primary text-3xl drop-shadow-md">
+                storefront
+            </span>
+</div>
+<!-- Marker 3: Inactive -->
+<div class="absolute top-[55%] left-[70%] flex flex-col items-center opacity-80">
+<span class="material-symbols-outlined text-primary text-3xl drop-shadow-md">
+                restaurant
+            </span>
+</div>
+<!-- User Location Dot -->
+<div class="absolute top-[48%] left-[45%] w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg z-10 animate-pulse"></div>
+<div class="absolute top-[48%] left-[45%] w-16 h-16 bg-blue-500 rounded-full opacity-10 -translate-x-[24px] -translate-y-[24px]"></div>
+</div>
+<!-- UI Overlay Layer -->
+<div class="relative z-10 flex flex-col h-full pointer-events-none">
+<!-- Top Section: Search & Filters -->
+<div class="pt-12 px-4 pointer-events-auto bg-gradient-to-b from-white/90 via-white/50 to-transparent pb-4">
+<!-- Search Bar -->
+<div class="bg-white dark:bg-gray-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full flex items-center h-12 px-4 mb-3 border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-primary text-2xl mr-3">search</span>
+<input class="bg-transparent border-none outline-none flex-1 text-gray-800 dark:text-gray-100 placeholder-gray-400 font-medium focus:ring-0 p-0" placeholder="Buscar tacos, tiendas..." type="text"/>
+<div class="w-px h-6 bg-gray-200 dark:bg-gray-600 mx-3"></div>
+<button class="text-gray-500 dark:text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+<!-- Chips / Categories -->
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+<button class="flex items-center gap-1 bg-primary text-white px-4 py-2 rounded-full shadow-md text-sm font-semibold shrink-0">
+<span class="material-symbols-outlined text-[18px]">restaurant</span>
+                    Comida
+                </button>
+<button class="flex items-center gap-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-full shadow-sm text-sm font-medium shrink-0 border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-[18px]">local_cafe</span>
+                    Café
+                </button>
+<button class="flex items-center gap-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-full shadow-sm text-sm font-medium shrink-0 border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+                    Ropa
+                </button>
+<button class="flex items-center gap-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-full shadow-sm text-sm font-medium shrink-0 border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-[18px]">health_and_safety</span>
+                    Salud
+                </button>
+</div>
+</div>
+<!-- Spacer to push content to bottom -->
+<div class="flex-1"></div>
+<!-- Bottom Section: FAB & Carousel -->
+<div class="flex flex-col pb-6 pointer-events-auto bg-gradient-to-t from-white/90 via-white/50 to-transparent pt-8">
+<!-- Recenter FAB -->
+<div class="flex justify-end px-4 mb-4">
+<button class="bg-white dark:bg-gray-800 text-gray-800 dark:text-white w-12 h-12 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary">my_location</span>
+</button>
+</div>
+<!-- Business Carousel -->
+<div class="flex overflow-x-auto no-scrollbar gap-4 px-4 snap-x snap-mandatory pb-4">
+<!-- Card 1: Active -->
+<div class="snap-center shrink-0 w-[280px] bg-white dark:bg-gray-800 rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.08)] overflow-hidden border-2 border-primary/20 flex flex-col relative group">
+<!-- Image -->
+<div class="h-32 w-full bg-gray-200 relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Cozy cafe interior with warm lighting" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC79ngpZU909iXKvUX-OvnPGIntNVX_CENmdFjSAdAUAtFXm4KgrCeizJdk1QMN4liFPi4EtpoEcjUsoUhvJWDtooKC3U8MUVc8Kikwmy99Lnhj8-pjZCq0Yx_QIxIEHjhpMaHMI00Tl2MqKLXxsmXxtdUYih2W6CCKaJY-gTMULCHnPOKexmnO8yZEqqdzbILE2FwNG5nwK7RP-UnpVQntoSB2vMNGkAD_CkY_k5Ptm5OGERpPAoBueCms7PjtLn_Ec3qmHa1ROBM");'></div>
+<div class="absolute top-2 right-2 bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">Abierto</div>
+<button class="absolute top-2 left-2 bg-white/90 p-1.5 rounded-full text-gray-500 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[18px] block">favorite</span>
+</button>
+</div>
+<!-- Content -->
+<div class="p-3">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">Café de la Loma</h3>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-1.5 py-0.5 rounded font-medium">$$</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mb-3">
+<span class="material-symbols-outlined text-[14px] text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-gray-900 dark:text-gray-200">4.8</span>
+<span>(120)</span>
+<span class="mx-1">•</span>
+<span>Cafetería</span>
+<span class="mx-1">•</span>
+<span>0.5 km</span>
+</div>
+<button class="w-full bg-primary/10 hover:bg-primary/20 text-primary text-sm font-bold py-2 rounded-lg transition-colors">
+                            Ver Menú
+                        </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="snap-center shrink-0 w-[280px] bg-white dark:bg-gray-800 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col relative">
+<div class="h-32 w-full bg-gray-200 relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Modern fashion boutique storefront" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDc2G1PbFCbrikgfDSrlkT9PRFWsjB_rfCPmyECBqXoQyoI1-HbSpdoa5CFoT757dHVCE_kbPsMynNxHoHF8PTU1jaTqWPrfC4M6GVVT_J-CHnhkbhmUzS-yiqaXNivsQz_sZ7KHSgDbGEsXzCro0nPGrb2aw9p0iLceT58AcBsULg8sVRMo0Io0RzC_Qz8aHOtTzQbhGJD8S2grT-rftYWDlKeQ6UCl8GLs4VWqpTBDbfb0SrS6mr0fesrYtBqeD4Y9eoCnTRwS8U");'></div>
+<div class="absolute top-2 right-2 bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">Cierra 8pm</div>
+<button class="absolute top-2 left-2 bg-white/90 p-1.5 rounded-full text-gray-500 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[18px] block">favorite</span>
+</button>
+</div>
+<div class="p-3">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">Boutique Moda</h3>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-1.5 py-0.5 rounded font-medium">$$$</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mb-3">
+<span class="material-symbols-outlined text-[14px] text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-gray-900 dark:text-gray-200">4.5</span>
+<span>(85)</span>
+<span class="mx-1">•</span>
+<span>Ropa</span>
+<span class="mx-1">•</span>
+<span>1.2 km</span>
+</div>
+<button class="w-full bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-white text-sm font-bold py-2 rounded-lg transition-colors">
+                            Ver Detalles
+                        </button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="snap-center shrink-0 w-[280px] bg-white dark:bg-gray-800 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col relative">
+<div class="h-32 w-full bg-gray-200 relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Taco stand street view" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8kJOyT-nSwiMlZiPVygx_Kv0E_22jp84s1MlGerRRuNA0dV55JDbJKg6u0S3jFUI2ZJsadwAeK_gOC3f_u2YVhaiBYHjwvr66mhGn7Om3JGhkio3ZSmyhY7uBygTujN6TT6NPwMT2RsFNQ0klmkkjRIO7h3Y_eEa3h5wn0z2McoDHNS4M5TRWdnRD396QKSmVBFyXpRU2Ysuqv0derbv9coG_qH9UEmRAsaSFLgugoPv8sViuyTeoLgvPmeyCLLL5av_QA_GZ27U");'></div>
+<div class="absolute top-2 right-2 bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">Abierto</div>
+<button class="absolute top-2 left-2 bg-white/90 p-1.5 rounded-full text-gray-500 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[18px] block">favorite</span>
+</button>
+</div>
+<div class="p-3">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">Tacos El Primo</h3>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-1.5 py-0.5 rounded font-medium">$</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mb-3">
+<span class="material-symbols-outlined text-[14px] text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-gray-900 dark:text-gray-200">4.9</span>
+<span>(340)</span>
+<span class="mx-1">•</span>
+<span>Tacos</span>
+<span class="mx-1">•</span>
+<span>0.2 km</span>
+</div>
+<button class="w-full bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-white text-sm font-bold py-2 rounded-lg transition-colors">
+                            Ver Detalles
+                        </button>
+</div>
+</div>
+<!-- Spacer for right padding -->
+<div class="w-2 shrink-0"></div>
+</div>
+<!-- Navigation Bar (Simulated floating) -->
+<div class="mx-4 mt-2 bg-white dark:bg-gray-900 rounded-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800">
+<div class="flex justify-around items-center h-16">
+<button class="flex flex-col items-center justify-center w-12 text-primary">
+<span class="material-symbols-outlined mb-0.5" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="text-[10px] font-medium">Mapa</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined mb-0.5">explore</span>
+<span class="text-[10px] font-medium">Descubrir</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined mb-0.5">favorite</span>
+<span class="text-[10px] font-medium">Favoritos</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined mb-0.5">person</span>
+<span class="text-[10px] font-medium">Perfil</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>
