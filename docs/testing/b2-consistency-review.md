@@ -36,12 +36,11 @@
 - `DELETE /favorites/{businessId}`: doc `OK` / codigo `OK`.
 - Guardas frontend para rutas protegidas: doc `OK` / codigo `OK`.
 
-## Gaps remanentes
-1. Ejecutar smoke B2 manual completo con evidencia de UI y API en entorno objetivo.
-2. Confirmar aplicacion de migracion `0007_b2_auth_favorites_indexes.sql` en todos los entornos.
-3. Mantener gate de regresion B1 junto con B2 antes de avanzar a B3.
+## Cierre de salida (2026-04-15)
+1. Migracion `0007_b2_auth_favorites_indexes.sql` aplicada en la base objetivo y registrada en `schema_migrations`.
+2. Verificacion de indices `sessions_refresh_token_hash_key` y `favorites_user_created_at_idx` en `OK`.
+3. Smoke B2 ejecutado con resultado global `OK` y evidencia en `docs/testing/b2-exit-report-2026-04-15.md`.
+4. Gate de regresion B1 ejecutado en `OK` durante el cierre de B2.
 
 ## Siguiente paso recomendado
-1. Correr `docs/testing/b2-auth-favorites-profile-smoke-e2e.md` end-to-end y registrar `OK/FAIL` por bloque.
-2. Correr regresion B1 (`test_catalog_public*` + build frontend).
-3. Si no hay desvio de contrato, cerrar B2 y planear B3.
+1. Mantener el mismo gate de smoke/regresion para cualquier cambio futuro que toque auth, favoritos o perfil.

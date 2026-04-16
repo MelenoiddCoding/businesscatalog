@@ -3,7 +3,7 @@
 ## Objetivo
 - Validar que la web app funciona como experiencia mobile-first y sigue siendo utilizable en desktop.
 - Confirmar que la documentacion y la implementacion respetan los contratos canonicos.
-- Abrir B2 con foco estricto en Auth + Favoritos + Perfil basico sin regresiones de B1.
+- Cerrar B2 con foco estricto en Auth + Favoritos + Perfil basico sin regresiones de B1.
 
 ## Referencias operativas
 - Revision de consistencia B2: `docs/testing/b2-consistency-review.md`.
