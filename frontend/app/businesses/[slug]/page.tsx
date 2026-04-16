@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3, MapPin, MessageCircle, Star, Store } from "lucide-react";
 
-import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
+import { BusinessDetailFavoriteButton } from "@/components/business-detail-favorite-button";
 import { Button } from "@/components/ui/button";
 import {
   ApiRequestError,
@@ -105,7 +105,7 @@ export default async function BusinessDetailPage({
 
           <div className="mt-5">
             <div className="flex flex-wrap items-start gap-2">
-              <FavoriteToggleButton
+              <BusinessDetailFavoriteButton
                 businessId={business.id}
                 businessName={business.name}
                 initialIsFavorited={business.is_favorited}
